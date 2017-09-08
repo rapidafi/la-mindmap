@@ -14,7 +14,7 @@ import xml.etree.ElementTree as ET
 ns = {'ap': 'http://schemas.mindjet.com/MindManager/Application/2003'}
 
 def getheader():
-    print ("week;user;documentCreated;documentLastModified;documentVersion;topic3Oid;topic3PlainText;topic2Oid;topic2PlainText;topic1Oid;topic1PlainText;topic0Oid;topic0PlainText\n").encode('utf-8')
+    return ("week;user;documentCreated;documentLastModified;documentVersion;topic3Oid;topic3PlainText;topic2Oid;topic2PlainText;topic1Oid;topic1PlainText;topic0Oid;topic0PlainText\n").encode('utf-8')
 
 def gettopic(topic,parents,week,user,documentcreated,documentlastmodified,documentversion):
     topicoid = topic.attrib["OId"]
