@@ -24,8 +24,6 @@ def getheader():
     return ("week;user;documentCreated;documentLastModified;documentVersion;topic3Oid;topic3PlainText;topic2Oid;topic2PlainText;topic1Oid;topic1PlainText;topic0Oid;topic0PlainText\n").encode('utf-8')
 
 def gettopic(topic,parents):
-    global week,user,documentcreated,documentlastmodified,documentversion
-
     topicoid = topic.attrib["OId"]
     topicplaintext = None
 

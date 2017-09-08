@@ -24,8 +24,6 @@ def getheader():
     return ("week;user;documentCreated;documentLastModified;documentVersion;topicOid;topicLevel;topicPlainText;topicTaskPercentage;topicIconType\n").encode('utf-8')
 
 def gettopic(topic,topiclevel):
-    global week,user,documentcreated,documentlastmodified,documentversion
-
     topicoid = topic.attrib["OId"]
     topicplaintext = None
     topictaskpercentage = "0"

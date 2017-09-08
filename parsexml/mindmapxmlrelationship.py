@@ -24,8 +24,6 @@ def getheader():
     return ("week;user;documentCreated;documentLastModified;documentVersion;topicOid;relTopicOid;plainText\n").encode('utf-8')
 
 def gettopic(topic,topicoid,reltopicoid):
-    global week,user,documentcreated,documentlastmodified,documentversion
-
     topicplaintext = None
 
     for topictext in topic.findall('./ap:Text',ns):
@@ -67,7 +65,6 @@ def parse(pweek,puser):
 
 
 def main(argv):
-    global week,user
     debug = False
 
     try:
