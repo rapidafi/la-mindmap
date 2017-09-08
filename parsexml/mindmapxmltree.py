@@ -13,16 +13,26 @@ import xml.etree.ElementTree as ET
 # "globals"
 ns = {'ap': 'http://schemas.mindjet.com/MindManager/Application/2003'}
 
+week = None
+user = None
+
+documentcreated = None
+documentlastmodified = None
+documentversion = None
+
 def getheader():
     return ("week;user;documentCreated;documentLastModified;documentVersion;topic3Oid;topic3PlainText;topic2Oid;topic2PlainText;topic1Oid;topic1PlainText;topic0Oid;topic0PlainText\n").encode('utf-8')
 
-def gettopic(topic,parents,week,user,documentcreated,documentlastmodified,documentversion):
+def gettopic(topic,parents):
+    global week,user,documentcreated,documentlastmodified,documentversion
+
     topicoid = topic.attrib["OId"]
     topicplaintext = None
 
     for topictext in topic.findall('./ap:Text',ns):
         topicplaintext = topictext.attrib["PlainText"]
     
+    # collect all the parents to same line diff columns, reversed!
     pstr = ""
     for p in reversed(parents):
         pstr = pstr+";\""+p.attrib["OId"]+"\""
@@ -34,23 +44,26 @@ def gettopic(topic,parents,week,user,documentcreated,documentlastmodified,docume
            topicoid,topicplaintext,pstr)
           ).encode('utf-8')
     
-def subtopic(parenttopic,topiclevel,parents,week,user,documentcreated,documentlastmodified,documentversion):
+def subtopic(parenttopic,topiclevel,parents):
+    global week,user,documentcreated,documentlastmodified,documentversion
+
     topiclevel = topiclevel + 1
     parents.append(parenttopic)
     ret = ""
     for topic in parenttopic.findall('./ap:SubTopics/ap:Topic',ns):
         if topiclevel == 3:
-            ret = ret + gettopic(topic,parents,week,user,documentcreated,documentlastmodified,documentversion)
-        ret = ret + subtopic(topic,topiclevel,list(parents),week,user,documentcreated,documentlastmodified,documentversion)
+            ret = ret + gettopic(topic,parents)
+        ret = ret + subtopic(topic,topiclevel,list(parents))
     return ret
 
-def parse(week,user):
+# for module usage pass arguments
+def parse(pweek,puser):
+    global week,user,documentcreated,documentlastmodified,documentversion
+    week = pweek
+    user = puser
+
     tree = ET.parse('.\\'+week+'\\'+user+'\\Document.xml')
     root = tree.getroot()
-
-    documentcreated = None
-    documentlastmodified = None
-    documentversion = None
 
     ret = ""
     for docgroup in root.findall('.//ap:DocumentGroup',ns):
@@ -59,14 +72,12 @@ def parse(week,user):
         documentversion = docgroup.find('.//ap:Version',ns).attrib["Major"]
     for onetopic in root.findall('.//ap:OneTopic',ns):
         for topic in onetopic.findall('./ap:Topic',ns):
-            ret = ret + subtopic(topic,0,[],week,user,documentcreated,documentlastmodified,documentversion)
+            ret = ret + subtopic(topic,0,[])
     return ret
 
 
 def main(argv):
     debug = False
-    week = None
-    user = None
 
     try:
         opts, args = getopt.getopt(argv,"w:u:d",["week=","user=","debug"])
@@ -80,8 +91,7 @@ def main(argv):
     if not week or not user:
         sys.exit(2)
 
-    print getheader()
-    print parse(week,user)
+    print getheader()+parse(week,user)
 
 if __name__ == "__main__":
     main(sys.argv[1:])

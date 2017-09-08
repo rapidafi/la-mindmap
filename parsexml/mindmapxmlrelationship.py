@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # vim: set fileencoding=UTF-8 :
 """
-mindmapxmltopic
+mindmapxmlrelationship
 
 Go thru given XML-file and parse and find certain information from it.
 Return or output result as CSV-like data.
@@ -21,39 +21,20 @@ documentlastmodified = None
 documentversion = None
 
 def getheader():
-    return ("week;user;documentCreated;documentLastModified;documentVersion;topicOid;topicLevel;topicPlainText;topicTaskPercentage;topicIconType\n").encode('utf-8')
+    return ("week;user;documentCreated;documentLastModified;documentVersion;topicOid;relTopicOid;plainText\n").encode('utf-8')
 
-def gettopic(topic,topiclevel):
+def gettopic(topic,topicoid,reltopicoid):
     global week,user,documentcreated,documentlastmodified,documentversion
 
-    topicoid = topic.attrib["OId"]
     topicplaintext = None
-    topictaskpercentage = "0"
-    topicicontype = "SmileyNeutral"
 
     for topictext in topic.findall('./ap:Text',ns):
         topicplaintext = topictext.attrib["PlainText"]
-    for icon in topic.findall('./ap:IconsGroup/ap:Icons/ap:Icon',ns):
-        topicicontype = icon.attrib["IconType"]
-        topicicontype = topicicontype.replace("urn:mindjet:","")
-    for task in topic.findall('./ap:Task',ns):
-        topictaskpercentage = task.attrib["TaskPercentage"]
         
-    return ("%s,%s;%s;%s;%s;\"%s\";%s;\"%s\";%s;%s\n"%
+    return ("%s,%s;%s;%s;%s;\"%s\";\"%s\";\"%s\"\n"%
           (week,user,documentcreated,documentlastmodified,documentversion,
-           topicoid,topiclevel,topicplaintext,topictaskpercentage,topicicontype)
+           topicoid,reltopicoid,topicplaintext)
           ).encode('utf-8')
-    
-def subtopic(parenttopic,topiclevel):
-    global week,user,documentcreated,documentlastmodified,documentversion
-
-    topiclevel = topiclevel + 1
-    ret = ""
-    for topic in parenttopic.findall('./ap:SubTopics/ap:Topic',ns):
-        if topiclevel == 3:
-            ret = ret + gettopic(topic,topiclevel)
-        ret = ret + subtopic(topic,topiclevel)
-    return ret
 
 # for module usage pass arguments
 def parse(pweek,puser):
@@ -70,14 +51,23 @@ def parse(pweek,puser):
         documentlastmodified = docgroup.find('.//ap:DateTimeStamps',ns).attrib["LastModified"]
         documentversion = docgroup.find('.//ap:Version',ns).attrib["Major"]
 
-    for onetopic in root.findall('.//ap:OneTopic',ns):
-        for topic in onetopic.findall('./ap:Topic',ns):
-            ret = ret + subtopic(topic,0)
+    for relationships in root.findall('.//ap:Relationships',ns):
+        for relationship in relationships.findall('./ap:Relationship',ns):
+            topicoid = None
+            reltopicoid = None
+            for objref in relationship.findall('./ap:ConnectionGroup[@Index="0"]/ap:Connection/ap:ObjectReference',ns):
+                topicoid = objref.attrib["OIdRef"]
+            for objref in relationship.findall('./ap:ConnectionGroup[@Index="1"]/ap:Connection/ap:ObjectReference',ns):
+                reltopicoid = objref.attrib["OIdRef"]
+
+            for topic in relationship.findall('./ap:FloatingTopics/ap:Topic',ns):
+                ret = ret + gettopic(topic,topicoid,reltopicoid)
 
     return ret
 
 
 def main(argv):
+    global week,user
     debug = False
 
     try:
