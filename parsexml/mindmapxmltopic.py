@@ -37,7 +37,7 @@ def gettopic(topic,topiclevel):
     for task in topic.findall('./ap:Task',ns):
         topictaskpercentage = task.attrib["TaskPercentage"]
         
-    return ("%s,%s;%s;%s;%s;\"%s\";%s;\"%s\";%s;%s\n"%
+    return ("%s;%s;%s;%s;%s;\"%s\";%s;\"%s\";%s;%s\n"%
           (week,user,documentcreated,documentlastmodified,documentversion,
            topicoid,topiclevel,topicplaintext,topictaskpercentage,topicicontype)
           ).encode('utf-8')
