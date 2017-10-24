@@ -29,7 +29,7 @@ def gettopic(topic,topicoid,reltopicoid):
     for topictext in topic.findall('./ap:Text',ns):
         topicplaintext = topictext.attrib["PlainText"]
         
-    return ("%s,%s;%s;%s;%s;\"%s\";\"%s\";\"%s\"\n"%
+    return ("%s;%s;%s;%s;%s;\"%s\";\"%s\";\"%s\"\n"%
           (week,user,documentcreated,documentlastmodified,documentversion,
            topicoid,reltopicoid,topicplaintext)
           ).encode('utf-8')
