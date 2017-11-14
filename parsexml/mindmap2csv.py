@@ -12,35 +12,40 @@ import os, sys, getopt
 import re
 #import ucsv as csv
 
-import mindmapxmltopic, mindmapxmltree, mindmapxmlrelationship
+import mindmapxmltopic, mindmapxmltree, mindmapxmlrelationship, mindmapxmlexpectchallenge
 
 # globally used filehandles
 ftopic = None
 ftree = None
 frelship = None
+fxptchlg = None
 
 def handle(folder,item):
-    user = re.sub(r'^([^_]+)_.*$',r'\1',item)
+    user = re.sub(r'^([^_]+)[_.].*$',r'\1',item)
     if not os.path.exists(folder+'\\'+user):
         print("USER DIRECTORY MISSING!",folder,user,item)
-    #
+
     topiccsv = mindmapxmltopic.parse(folder,user)
     treecsv = mindmapxmltree.parse(folder,user)
     relshipcsv = mindmapxmlrelationship.parse(folder,user)
+    xptchlgcsv = mindmapxmlexpectchallenge.parse(folder,user)
     ftopic.write(topiccsv)
     ftree.write(treecsv)
     frelship.write(relshipcsv)
+    fxptchlg.write(xptchlgcsv)
 
 def process(folders,extension):
-    global ftopic, ftree, frelship
+    global ftopic, ftree, frelship, fxptchlg
 
     ftopic = open('mindmaptopic.csv', 'w')
     ftree = open('mindmaptree.csv', 'w')
     frelship = open('mindmaprelationship.csv', 'w')
+    fxptchlg = open('mindmapexpectchallenge.csv', 'w')
 
     ftopic.write(mindmapxmltopic.getheader())
     ftree.write(mindmapxmltree.getheader())
     frelship.write(mindmapxmlrelationship.getheader())
+    fxptchlg.write(mindmapxmlexpectchallenge.getheader())
 
     for folder in folders:
         for item in os.listdir(folder):
@@ -50,6 +55,7 @@ def process(folders,extension):
     ftopic.close()
     ftree.close()
     frelship.close()
+    fxptchlg.close()
 
 def usage():
     print """

@@ -15,7 +15,7 @@ def getheader():
 def handle(folder,item):
     os.chdir(folder)
     file_name = os.path.abspath(item) # get full path of files
-    user = re.sub(r'^([^_]+)_.*$',r'\1',item)
+    user = re.sub(r'^([^_]+)[_.].*$',r'\1',item)
     if not os.path.exists(user):
         os.makedirs(user)
     zip_ref = zipfile.ZipFile(file_name) # create zipfile object
