@@ -15,7 +15,7 @@ ns = {'ap': 'http://schemas.mindjet.com/MindManager/Application/2003'}
 
 def getheader():
     ret = "week;user;documentCreated;documentLastModified;documentVersion"
-    ret = ret + ";topicOid;topicPlainText;topic1Oid;topic1PlainText;topic0Oid;topic0PlainText"
+    ret = ret + ";topicOid;topicPlainText;topicPercentage;topic1Oid;topic1PlainText;topic1Percentage;topic1Icon;topic0Oid;topic0PlainText"
     ret = ret + "\n"
     return (ret).encode('utf-8')
 
@@ -28,12 +28,21 @@ def gettopic(topic):
     
     return (";\"%s\";\"%s\""%(topicoid,topicplaintext))
 
-def getparents(parents):
-    # collect all the parents to same line, reversed!
-    ret = ""
-    for p in reversed(parents):
-        ret = ret + gettopic(p)
-    return ret
+def gettopicreadiness(topic):
+    topictaskpercentage = None
+    
+    for topictask in topic.findall('./ap:Task',ns):
+        topictaskpercentage = topictask.attrib["TaskPercentage"]
+
+    return (";\"%s\""%(topictaskpercentage))
+
+def gettopicicon(topic):
+    topicicontype = None
+
+    for topicicon in topic.findall('./ap:IconsGroup/ap:Icons/ap:Icon',ns):
+        topicicontype = topicicon.attrib["IconType"]
+
+    return (";\"%s\""%(topicicontype))
 
 # for module usage pass arguments
 def parse(pweek,puser):
@@ -57,9 +66,11 @@ def parse(pweek,puser):
                 for btopic in atopic.findall('./ap:FloatingTopics/ap:Topic',ns):
                     ret = ret + firstcolumns
                     ret = ret + gettopic(btopic)
-                    #ret = ret + getparents(list([topic,fttopic,atopic]))
-                    ret = ret + getparents(list([topic,atopic]))
-                    #ret = ret + gettopic(topic)
+                    ret = ret + gettopicreadiness(btopic) # task percentage
+                    ret = ret + gettopic(atopic)
+                    ret = ret + gettopicreadiness(atopic) # parent percentage
+                    ret = ret + gettopicicon(atopic)
+                    ret = ret + gettopic(topic)
                     ret = ret + "\n"
                 # alternative way with enormous hierarchy and false location of written text (opiskelija2)
                 for btopic in atopic.findall('./ap:SubTopics/ap:Topic',ns):
@@ -71,7 +82,11 @@ def parse(pweek,puser):
                             """
                             ret = ret + firstcolumns
                             ret = ret + gettopic(dtopic)
-                            ret = ret + getparents(list([topic,ctopic]))
+                            ret = ret + gettopicreadiness(dtopic) # task percentage
+                            ret = ret + gettopic(ctopic)
+                            ret = ret + gettopicreadiness(ctopic) # parent percentage
+                            ret = ret + gettopicicon(ctopic)
+                            ret = ret + gettopic(topic)
                             ret = ret + "\n"
                             #"""
                             # if we do want to support the wrong way, choose this:
@@ -86,7 +101,11 @@ def parse(pweek,puser):
                                     dtext = dtext + topictext.attrib["PlainText"] + ", "
                             ret = ret + firstcolumns
                             ret = ret + (";\"%s\";\"%s\""%(topicoid,dtext))
-                            ret = ret + getparents(list([topic,ctopic]))
+                            ret = ret + gettopicreadiness(dtopic) # task percentage
+                            ret = ret + gettopic(ctopic)
+                            ret = ret + gettopicreadiness(ctopic) # parent percentage
+                            ret = ret + gettopicicon(ctopic)
+                            ret = ret + gettopic(topic)
                             ret = ret + "\n"
                             #"""
 
