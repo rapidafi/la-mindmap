@@ -63,35 +63,33 @@ def parse(pweek,puser):
                     ret = ret + "\n"
                 # alternative way with enormous hierarchy and false location of written text (opiskelija2)
                 for btopic in atopic.findall('./ap:SubTopics/ap:Topic',ns):
-                    # gather b, c and d topic texts as one but presumably b and c are actually parent topics which should replace fttopic and atopic above
-                    #btext = "None"
-                    #for topictext in btopic.findall('./ap:Text',ns):
-                    #    btext = topictext.attrib["PlainText"]
+                    #TODO: fixme: b and c are actually parent topics which replace fttopic and atopic above in this scenario (only c is interesting, though)
                     for ctopic in btopic.findall('./ap:SubTopics/ap:Topic',ns):
-                        #ctext = "None"
-                        #for topictext in ctopic.findall('./ap:Text',ns):
-                        #    ctext = topictext.attrib["PlainText"]
                         for dtopic in ctopic.findall('./ap:FloatingTopics/ap:Topic',ns):
+                            #TODO: do we want to gather the false way written texts?
+                            # if not, choose this:
+                            """
                             ret = ret + firstcolumns
-                            #ret = ret + gettopic(btopic)+extratopictext
-                            #topicoid = dtopic.attrib["OId"]
-                            topicoid = None
+                            ret = ret + gettopic(dtopic)
+                            ret = ret + getparents(list([topic,ctopic]))
+                            ret = ret + "\n"
+                            #"""
+                            # if we do want to support the wrong way, choose this:
+                            #"""
+                            topicoid = dtopic.attrib["OId"]
                             dtext = "None"
                             for topictext in dtopic.findall('./ap:Text',ns):
                                 dtext = topictext.attrib["PlainText"]
                             # gather texts from subtopics of dtopic
                             for etopic in dtopic.findall('./ap:SubTopics/ap:Topic',ns):
-                                topicoid = etopic.attrib["OId"]
                                 for topictext in etopic.findall('./ap:Text',ns):
                                     dtext = dtext + topictext.attrib["PlainText"] + ", "
-                            #ret = ret + (";\"%s\";\"%s\""%(topicoid,dtext+" / "+ctext+" / "+btext))
+                            ret = ret + firstcolumns
                             ret = ret + (";\"%s\";\"%s\""%(topicoid,dtext))
-
-                            #ret = ret + getparents(list([topic,fttopic,atopic]))
-                            #ret = ret + getparents(list([topic,btopic,ctopic]))
                             ret = ret + getparents(list([topic,ctopic]))
-                            #ret = ret + gettopic(topic)
                             ret = ret + "\n"
+                            #"""
+
     return ret.encode('utf-8')
 
 def main(argv):
