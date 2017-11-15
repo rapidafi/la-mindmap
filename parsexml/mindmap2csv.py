@@ -57,6 +57,19 @@ def process(folders,extension):
     frelship.close()
     fxptchlg.close()
 
+    # make tree csv unique by topic3oid
+    ftree = open('mindmaptree.csv', 'r')
+    uniq = set([])
+    for line in ftree.readlines():
+        incl = re.sub(r'^[^;]*;[^;]*;[^;]*;[^;]*;[^;]*;(.*)$', r'\1', line.rstrip("\n"))
+        uniq.add(incl)
+    ftree.close()
+    ftree = open('mindmaptree.csv', 'w')
+    ftree.write(re.sub(r'^[^;]*;[^;]*;[^;]*;[^;]*;[^;]*;(.*)$', r'\1', mindmapxmltree.getheader()))
+    for u in uniq:
+        ftree.write(u+"\n")
+    ftree.close()
+
 def usage():
     print """
     Usage:
