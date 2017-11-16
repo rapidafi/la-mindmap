@@ -19,30 +19,28 @@ def getheader():
     ret = ret + "\n"
     return (ret).encode('utf-8')
 
-def gettopic(topic):
-    topicoid = topic.attrib["OId"]
+def gettopictext(topic):
     topicplaintext = None
-
     for topictext in topic.findall('./ap:Text',ns):
         topicplaintext = topictext.attrib["PlainText"]
-    
-    return (";\"%s\";\"%s\""%(topicoid,topicplaintext))
+    return topicplaintext
+
+def gettopic(topic):
+    topicoid = topic.attrib["OId"]
+    topicplaintext = gettopictext(topic)
+    return (topicoid,topicplaintext)
 
 def gettopicreadiness(topic):
     topictaskpercentage = None
-    
     for topictask in topic.findall('./ap:Task',ns):
         topictaskpercentage = topictask.attrib["TaskPercentage"]
-
-    return (";\"%s\""%(topictaskpercentage))
+    return (topictaskpercentage)
 
 def gettopicicon(topic):
     topicicontype = None
-
     for topicicon in topic.findall('./ap:IconsGroup/ap:Icons/ap:Icon',ns):
         topicicontype = topicicon.attrib["IconType"]
-
-    return (";\"%s\""%(topicicontype))
+    return (topicicontype)
 
 # for module usage pass arguments
 def parse(pweek,puser):
@@ -59,53 +57,67 @@ def parse(pweek,puser):
     firstcolumns = ("%s;%s;%s;%s;%s"%(week,user,documentcreated,documentlastmodified,documentversion))
     ret = ""
     for topic in root.findall('.//ap:OneTopic/ap:Topic',ns):
+        (toid,ttext) = gettopic(topic)
+        (tpercentage) = gettopicreadiness(topic)
+        (ticon) = gettopicicon(topic)
         for fttopic in topic.findall('./ap:FloatingTopics/ap:Topic',ns):
             # path to Expectations and ...challenges
             for atopic in fttopic.findall('./ap:SubTopics/ap:Topic',ns):
+                (aoid,atext) = gettopic(atopic)
+                (apercentage) = gettopicreadiness(atopic)
+                (aicon) = gettopicicon(atopic)
                 # one way (opiskelija1)
                 for btopic in atopic.findall('./ap:FloatingTopics/ap:Topic',ns):
+                    (boid,btext) = gettopic(btopic)
+                    (bpercentage) = gettopicreadiness(btopic)
+                    (bicon) = gettopicicon(btopic)
                     ret = ret + firstcolumns
-                    ret = ret + gettopic(btopic)
-                    ret = ret + gettopicreadiness(btopic) # task percentage
-                    ret = ret + gettopic(atopic)
-                    ret = ret + gettopicreadiness(atopic) # parent percentage
-                    ret = ret + gettopicicon(atopic)
-                    ret = ret + gettopic(topic)
+                    ret = ret + ";\"%s\";\"%s\""%(boid,btext)
+                    ret = ret + ";\"%s\""%(bpercentage) # task percentage
+                    ret = ret + ";\"%s\";\"%s\""%(aoid,atext)
+                    ret = ret + ";\"%s\""%(apercentage) # parent percentage
+                    ret = ret + ";\"%s\""%(aicon)
+                    ret = ret + ";\"%s\";\"%s\""%(toid,ttext)
                     ret = ret + "\n"
                 # alternative way with enormous hierarchy and false location of written text (opiskelija2)
                 for btopic in atopic.findall('./ap:SubTopics/ap:Topic',ns):
+                    (boid,btext) = gettopic(btopic)
+                    (bpercentage) = gettopicreadiness(btopic)
+                    (bicon) = gettopicicon(btopic)
                     #TODO: fixme: b and c are actually parent topics which replace fttopic and atopic above in this scenario (only c is interesting, though)
                     for ctopic in btopic.findall('./ap:SubTopics/ap:Topic',ns):
+                        (coid,ctext) = gettopic(ctopic)
+                        (cpercentage) = gettopicreadiness(ctopic)
+                        (cicon) = gettopicicon(ctopic)
                         for dtopic in ctopic.findall('./ap:FloatingTopics/ap:Topic',ns):
+                            (doid,dtext) = gettopic(dtopic)
+                            (dpercentage) = gettopicreadiness(dtopic)
+                            (dicon) = gettopicicon(dtopic)
                             #TODO: do we want to gather the false way written texts?
                             # if not, choose this:
                             """
                             ret = ret + firstcolumns
-                            ret = ret + gettopic(dtopic)
-                            ret = ret + gettopicreadiness(dtopic) # task percentage
-                            ret = ret + gettopic(ctopic)
-                            ret = ret + gettopicreadiness(ctopic) # parent percentage
-                            ret = ret + gettopicicon(ctopic)
-                            ret = ret + gettopic(topic)
+                            ret = ret + ";\"%s\";\"%s\""%(doid,dtext)
+                            ret = ret + ";%s"%(dpercentage) # task percentage
+                            ret = ret + ";\"%s\";\"%s\""%(coid,ctext)
+                            ret = ret + ";%s"%(cpercentage) # parent percentage
+                            ret = ret + ";\"%s\""%(cicon)
+                            ret = ret + ";\"%s\";\"%s\""%(toid,ttext)
                             ret = ret + "\n"
                             #"""
                             # if we do want to support the wrong way, choose this:
                             #"""
-                            topicoid = dtopic.attrib["OId"]
-                            dtext = "None"
-                            for topictext in dtopic.findall('./ap:Text',ns):
-                                dtext = topictext.attrib["PlainText"]
-                            # gather texts from subtopics of dtopic
+                            # append by gathering texts from subtopics of dtopic
                             for etopic in dtopic.findall('./ap:SubTopics/ap:Topic',ns):
                                 for topictext in etopic.findall('./ap:Text',ns):
                                     dtext = dtext + topictext.attrib["PlainText"] + ", "
                             ret = ret + firstcolumns
-                            ret = ret + (";\"%s\";\"%s\""%(topicoid,dtext))
-                            ret = ret + gettopicreadiness(dtopic) # task percentage
-                            ret = ret + gettopic(ctopic)
-                            ret = ret + gettopicreadiness(ctopic) # parent percentage
-                            ret = ret + gettopicicon(ctopic)
-                            ret = ret + gettopic(topic)
+                            ret = ret + ";\"%s\";\"%s\""%(doid,dtext)
+                            ret = ret + ";%s"%(dpercentage) # task percentage
+                            ret = ret + ";\"%s\";\"%s\""%(coid,ctext)
+                            ret = ret + ";%s"%(cpercentage) # parent percentage
+                            ret = ret + ";\"%s\""%(cicon)
+                            ret = ret + ";\"%s\";\"%s\""%(toid,ttext)
                             ret = ret + "\n"
                             #"""
 
