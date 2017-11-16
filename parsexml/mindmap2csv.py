@@ -74,12 +74,18 @@ def process(folders,extension):
     # TODO this should be somewhere else!
     ftree = open('mindmaptree.csv', 'r')
     uniq = set([])
+    header = ""
+    lnum = 0
     for line in ftree.readlines():
+        lnum = lnum + 1
         incl = re.sub(r'^[^;]*;[^;]*;[^;]*;[^;]*;[^;]*;(.*)$', r'\1', line.rstrip("\n"))
-        uniq.add(incl)
+        if lnum>1: # skip header line
+            uniq.add(incl)
+        else:
+            header = incl
     ftree.close()
     ftree = open('mindmaptree.csv', 'w')
-    ftree.write(re.sub(r'^[^;]*;[^;]*;[^;]*;[^;]*;[^;]*;(.*)$', r'\1', mindmapxmltree.getheader()))
+    ftree.write(header+"\n")
     for u in uniq:
         ftree.write(u+"\n")
     ftree.close()
