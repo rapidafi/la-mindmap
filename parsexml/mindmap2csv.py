@@ -12,13 +12,16 @@ import os, sys, getopt
 import re
 #import ucsv as csv
 
-import mindmapxmltopic, mindmapxmltree, mindmapxmlrelationship, mindmapxmlexpectchallenge
+import mindmapxmltopic, mindmapxmltree, mindmapxmlrelationship
+import mindmapxmlexpectchallenge, mindmapxmlhoursused, mindmapxmlimportance
 
 # globally used filehandles
 ftopic = None
 ftree = None
 frelship = None
 fxptchlg = None
+fhours = None
+fimport = None
 
 def handle(folder,item):
     user = re.sub(r'^([^_]+)[_.].*$',r'\1',item)
@@ -29,23 +32,31 @@ def handle(folder,item):
     treecsv = mindmapxmltree.parse(folder,user)
     relshipcsv = mindmapxmlrelationship.parse(folder,user)
     xptchlgcsv = mindmapxmlexpectchallenge.parse(folder,user)
+    hourscsv = mindmapxmlhoursused.parse(folder,user)
+    importcsv = mindmapxmlimportance.parse(folder,user)
     ftopic.write(topiccsv)
     ftree.write(treecsv)
     frelship.write(relshipcsv)
     fxptchlg.write(xptchlgcsv)
+    fhours.write(hourscsv)
+    fimport.write(importcsv)
 
 def process(folders,extension):
-    global ftopic, ftree, frelship, fxptchlg
+    global ftopic, ftree, frelship, fxptchlg, fhours, fimport
 
     ftopic = open('mindmaptopic.csv', 'w')
     ftree = open('mindmaptree.csv', 'w')
     frelship = open('mindmaprelationship.csv', 'w')
     fxptchlg = open('mindmapexpectchallenge.csv', 'w')
+    fhours = open('mindmaphoursused.csv', 'w')
+    fimport = open('mindmapimportance.csv', 'w')
 
     ftopic.write(mindmapxmltopic.getheader())
     ftree.write(mindmapxmltree.getheader())
     frelship.write(mindmapxmlrelationship.getheader())
     fxptchlg.write(mindmapxmlexpectchallenge.getheader())
+    fhours.write(mindmapxmlhoursused.getheader())
+    fimport.write(mindmapxmlimportance.getheader())
 
     for folder in folders:
         for item in os.listdir(folder):
@@ -56,8 +67,11 @@ def process(folders,extension):
     ftree.close()
     frelship.close()
     fxptchlg.close()
+    fhours.close()
+    fimport.close()
 
     # make tree csv unique by topic3oid
+    # TODO this should be somewhere else!
     ftree = open('mindmaptree.csv', 'r')
     uniq = set([])
     for line in ftree.readlines():
