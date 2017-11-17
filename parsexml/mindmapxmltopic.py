@@ -13,70 +13,69 @@ import xml.etree.ElementTree as ET
 # "globals"
 ns = {'ap': 'http://schemas.mindjet.com/MindManager/Application/2003'}
 
-week = None
-user = None
-
-documentcreated = None
-documentlastmodified = None
-documentversion = None
-
 def getheader():
-    return ("week;user;documentCreated;documentLastModified;documentVersion;topicOid;topicLevel;topicPlainText;topicTaskPercentage;topicIconType\n").encode('utf-8')
+    ret = "week;user;documentCreated;documentLastModified;documentVersion"
+    ret = ret + ";topicOid;topicLevel;topicPlainText;topicTaskPercentage;topicIconType"
+    ret = ret + "\n"
+    return ret.encode('utf-8')
 
-def gettopic(topic,topiclevel):
+def gettopic(topic):
     topicoid = topic.attrib["OId"]
     topicplaintext = None
-    topictaskpercentage = "0"
-    topicicontype = "SmileyNeutral"
-
     for topictext in topic.findall('./ap:Text',ns):
         topicplaintext = topictext.attrib["PlainText"]
-    for icon in topic.findall('./ap:IconsGroup/ap:Icons/ap:Icon',ns):
-        topicicontype = icon.attrib["IconType"]
-        topicicontype = topicicontype.replace("urn:mindjet:","")
-    for task in topic.findall('./ap:Task',ns):
-        topictaskpercentage = task.attrib["TaskPercentage"]
-        
-    return ("%s;%s;%s;%s;%s;\"%s\";%s;\"%s\";%s;%s\n"%
-          (week,user,documentcreated,documentlastmodified,documentversion,
-           topicoid,topiclevel,topicplaintext,topictaskpercentage,topicicontype)
-          ).encode('utf-8')
+    return (topicoid,topicplaintext)
+
+def gettopicpercentage(topic):
+    topictaskpercentage = None
+    for topictask in topic.findall('./ap:Task',ns):
+        topictaskpercentage = topictask.attrib["TaskPercentage"]
+    return (topictaskpercentage)
+
+def gettopicicon(topic):
+    topicicontype = None
+    for topicicon in topic.findall('./ap:IconsGroup/ap:Icons/ap:Icon',ns):
+        topicicontype = topicicon.attrib["IconType"]
+    return (topicicontype)
     
 def subtopic(parenttopic,topiclevel):
-    global week,user,documentcreated,documentlastmodified,documentversion
-
     topiclevel = topiclevel + 1
-    ret = ""
+    ret = []
     for topic in parenttopic.findall('./ap:SubTopics/ap:Topic',ns):
         if topiclevel == 3:
-            ret = ret + gettopic(topic,topiclevel)
-        ret = ret + subtopic(topic,topiclevel)
+            (topicoid,topicplaintext) = gettopic(topic)
+            ret.append((topicoid,topicplaintext,topiclevel,gettopicpercentage(topic),gettopicicon(topic)))
+        # recursively loop subtopics and defuse list in list
+        for e in subtopic(topic,topiclevel):
+            ret.append(e)
     return ret
 
 # for module usage pass arguments
-def parse(pweek,puser):
-    global week,user,documentcreated,documentlastmodified,documentversion
-    week = pweek
-    user = puser
-
+def parse(week,user):
     tree = ET.parse('.\\'+week+'\\'+user+'\\Document.xml')
     root = tree.getroot()
 
-    ret = ""
     for docgroup in root.findall('.//ap:DocumentGroup',ns):
         documentcreated = docgroup.find('.//ap:DateTimeStamps',ns).attrib["Created"]
         documentlastmodified = docgroup.find('.//ap:DateTimeStamps',ns).attrib["LastModified"]
         documentversion = docgroup.find('.//ap:Version',ns).attrib["Major"]
-
+    ret = ""
     for onetopic in root.findall('.//ap:OneTopic',ns):
         for topic in onetopic.findall('./ap:Topic',ns):
-            ret = ret + subtopic(topic,0)
-
-    return ret
+            elements = subtopic(topic,0)
+            for e in elements:
+                (topicoid,topicplaintext,topiclevel,topicpercentage,topicicon) = e
+                ret = ret + ("%s;%s;%s;%s;%s;\"%s\";%s;\"%s\";%s;%s\n"%
+                      (week,user,documentcreated,documentlastmodified,documentversion,
+                       topicoid,topiclevel,topicplaintext,topicpercentage,topicicon)
+                      )
+    return ret.encode('utf-8')
 
 
 def main(argv):
     debug = False
+    week = None
+    user = None
 
     try:
         opts, args = getopt.getopt(argv,"w:u:d",["week=","user=","debug"])
@@ -88,6 +87,7 @@ def main(argv):
         elif opt in ("-u", "--user"): user = arg
         elif opt in ("-d", "--debug"): debug = True
     if not week or not user:
+        print "Mandatory arguments missing. Exiting."
         sys.exit(2)
 
     print getheader()+parse(week,user)

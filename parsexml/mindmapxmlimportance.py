@@ -13,15 +13,11 @@ import xml.etree.ElementTree as ET
 # "globals"
 ns = {'ap': 'http://schemas.mindjet.com/MindManager/Application/2003'}
 
-week = None
-user = None
-
-documentcreated = None
-documentlastmodified = None
-documentversion = None
-
 def getheader():
-    return ("week;user;documentCreated;documentLastModified;documentVersion;topicOid;topicPlainText;topicIconType;Priority;Percentage\n").encode('utf-8')
+    ret = "week;user;documentCreated;documentLastModified;documentVersion"
+    ret = ret + ";topicOid;topicPlainText;topicIconType;Priority;Percentage"
+    ret = ret + "\n"
+    return (ret).encode('utf-8')
 
 def gettopic(topic):
     topicoid = topic.attrib["OId"]
@@ -47,27 +43,24 @@ def getpriority(topic):
     return (taskpriority,taskpercentage)
 
 def getprioritymarker(root,priority):
+    taskprioritymarkername = None
     for taskprioritymarker in root.findall('.//ap:TaskPriorityMarker',ns):
         for taskpriority in taskprioritymarker.findall('./ap:TaskPriority',ns):
             if "TaskPriority" in taskpriority.attrib:
                 if priority == taskpriority.attrib["TaskPriority"]:
-                    return taskprioritymarker.find('./ap:Name',ns).attrib["Name"]
+                    taskprioritymarkername = taskprioritymarker.find('./ap:Name',ns).attrib["Name"]
+    return (taskprioritymarkername)
 
 # for module usage pass arguments
-def parse(pweek,puser):
-    global week,user,documentcreated,documentlastmodified,documentversion
-    week = pweek
-    user = puser
-
+def parse(week,user):
     tree = ET.parse('.\\'+week+'\\'+user+'\\Document.xml')
     root = tree.getroot()
 
-    ret = ""
     for docgroup in root.findall('.//ap:DocumentGroup',ns):
         documentcreated = docgroup.find('.//ap:DateTimeStamps',ns).attrib["Created"]
         documentlastmodified = docgroup.find('.//ap:DateTimeStamps',ns).attrib["LastModified"]
         documentversion = docgroup.find('.//ap:Version',ns).attrib["Major"]
-
+    ret = ""
     for topic in root.findall('.//ap:Topic',ns):
         (priority,percentage) = getpriority(topic)
         if priority:

@@ -19,18 +19,14 @@ def getheader():
     ret = ret + "\n"
     return (ret).encode('utf-8')
 
-def gettopictext(topic):
+def gettopic(topic):
+    topicoid = topic.attrib["OId"]
     topicplaintext = None
     for topictext in topic.findall('./ap:Text',ns):
         topicplaintext = topictext.attrib["PlainText"]
-    return topicplaintext
-
-def gettopic(topic):
-    topicoid = topic.attrib["OId"]
-    topicplaintext = gettopictext(topic)
     return (topicoid,topicplaintext)
 
-def gettopicreadiness(topic):
+def gettopicpercentage(topic):
     topictaskpercentage = None
     for topictask in topic.findall('./ap:Task',ns):
         topictaskpercentage = topictask.attrib["TaskPercentage"]
@@ -58,18 +54,18 @@ def parse(pweek,puser):
     ret = ""
     for topic in root.findall('.//ap:OneTopic/ap:Topic',ns):
         (toid,ttext) = gettopic(topic)
-        (tpercentage) = gettopicreadiness(topic)
+        (tpercentage) = gettopicpercentage(topic)
         (ticon) = gettopicicon(topic)
         for fttopic in topic.findall('./ap:FloatingTopics/ap:Topic',ns):
             # path to Expectations and ...challenges
             for atopic in fttopic.findall('./ap:SubTopics/ap:Topic',ns):
                 (aoid,atext) = gettopic(atopic)
-                (apercentage) = gettopicreadiness(atopic)
+                (apercentage) = gettopicpercentage(atopic)
                 (aicon) = gettopicicon(atopic)
                 # one way (opiskelija1)
                 for btopic in atopic.findall('./ap:FloatingTopics/ap:Topic',ns):
                     (boid,btext) = gettopic(btopic)
-                    (bpercentage) = gettopicreadiness(btopic)
+                    (bpercentage) = gettopicpercentage(btopic)
                     (bicon) = gettopicicon(btopic)
                     ret = ret + firstcolumns
                     ret = ret + ";\"%s\";\"%s\""%(boid,btext)
@@ -82,16 +78,16 @@ def parse(pweek,puser):
                 # alternative way with enormous hierarchy and false location of written text (opiskelija2)
                 for btopic in atopic.findall('./ap:SubTopics/ap:Topic',ns):
                     (boid,btext) = gettopic(btopic)
-                    (bpercentage) = gettopicreadiness(btopic)
+                    (bpercentage) = gettopicpercentage(btopic)
                     (bicon) = gettopicicon(btopic)
                     #TODO: fixme: b and c are actually parent topics which replace fttopic and atopic above in this scenario (only c is interesting, though)
                     for ctopic in btopic.findall('./ap:SubTopics/ap:Topic',ns):
                         (coid,ctext) = gettopic(ctopic)
-                        (cpercentage) = gettopicreadiness(ctopic)
+                        (cpercentage) = gettopicpercentage(ctopic)
                         (cicon) = gettopicicon(ctopic)
                         for dtopic in ctopic.findall('./ap:FloatingTopics/ap:Topic',ns):
                             (doid,dtext) = gettopic(dtopic)
-                            (dpercentage) = gettopicreadiness(dtopic)
+                            (dpercentage) = gettopicpercentage(dtopic)
                             (dicon) = gettopicicon(dtopic)
                             #TODO: do we want to gather the false way written texts?
                             # if not, choose this:

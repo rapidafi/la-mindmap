@@ -13,23 +13,17 @@ import xml.etree.ElementTree as ET
 # "globals"
 ns = {'ap': 'http://schemas.mindjet.com/MindManager/Application/2003'}
 
-week = None
-user = None
-
-documentcreated = None
-documentlastmodified = None
-documentversion = None
-
 def getheader():
-    return ("week;user;documentCreated;documentLastModified;documentVersion;topicOid;topicPlainText;customPropertyName;number\n").encode('utf-8')
+    ret = "week;user;documentCreated;documentLastModified;documentVersion"
+    ret = ret + ";topicOid;topicPlainText;customPropertyName;number"
+    ret = ret + "\n"
+    return (ret).encode('utf-8')
 
 def gettopic(topic):
     topicoid = topic.attrib["OId"]
     topicplaintext = None
-
     for topictext in topic.findall('./ap:Text',ns):
         topicplaintext = topictext.attrib["PlainText"]
-    
     return (topicoid,topicplaintext)
 
 def getcustomproperty(topic):
@@ -43,20 +37,15 @@ def getcustomproperty(topic):
     return (None,None)
 
 # for module usage pass arguments
-def parse(pweek,puser):
-    global week,user,documentcreated,documentlastmodified,documentversion
-    week = pweek
-    user = puser
-
+def parse(week,user):
     tree = ET.parse('.\\'+week+'\\'+user+'\\Document.xml')
     root = tree.getroot()
 
-    ret = ""
     for docgroup in root.findall('.//ap:DocumentGroup',ns):
         documentcreated = docgroup.find('.//ap:DateTimeStamps',ns).attrib["Created"]
         documentlastmodified = docgroup.find('.//ap:DateTimeStamps',ns).attrib["LastModified"]
         documentversion = docgroup.find('.//ap:Version',ns).attrib["Major"]
-
+    ret = ""
     # get any and all topics
     for topic in root.findall('.//ap:Topic',ns):
         (prop,number) = getcustomproperty(topic)
@@ -70,6 +59,8 @@ def parse(pweek,puser):
 
 def main(argv):
     debug = False
+    week = None
+    user = None
 
     try:
         opts, args = getopt.getopt(argv,"w:u:d",["week=","user=","debug"])
@@ -81,6 +72,7 @@ def main(argv):
         elif opt in ("-u", "--user"): user = arg
         elif opt in ("-d", "--debug"): debug = True
     if not week or not user:
+        print "Mandatory arguments missing. Exiting."
         sys.exit(2)
 
     print getheader()+parse(week,user)

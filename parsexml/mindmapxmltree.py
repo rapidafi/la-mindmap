@@ -22,38 +22,32 @@ def getheader():
 def gettopic(topic):
     topicoid = topic.attrib["OId"]
     topicplaintext = None
-
     for topictext in topic.findall('./ap:Text',ns):
         topicplaintext = topictext.attrib["PlainText"]
-    
-    return (";\"%s\";\"%s\""%(topicoid,topicplaintext))
+    return (topicoid,topicplaintext)
 
 def getparents(parents):
     # collect all the parents to same line, reversed!
-    ret = ""
+    ret = []
     for p in reversed(parents):
-        ret = ret + gettopic(p)
+        ret.append(gettopic(p))
     return ret
     
-def subtopic(firstcolumns,parenttopic,topiclevel,parents):
+def subtopic(parenttopic,topiclevel,parents):
     topiclevel = topiclevel + 1
     parents.append(parenttopic)
-    ret = ""
+    ret = []
     for topic in parenttopic.findall('./ap:SubTopics/ap:Topic',ns):
         if topiclevel == 3:
-            ret = ret + firstcolumns
-            ret = ret + gettopic(topic)
-            ret = ret + getparents(parents)
-            ret = ret + "\n"
-
-        ret = ret + subtopic(firstcolumns,topic,topiclevel,list(parents))
+            (topicoid,topicplaintext) = gettopic(topic)
+            ret.append((topicoid,topicplaintext,topiclevel,getparents(parents)))
+        # recursively loop subtopics and defuse list in list
+        for e in subtopic(topic,topiclevel,list(parents)):
+            ret.append(e)
     return ret
 
 # for module usage pass arguments
-def parse(pweek,puser):
-    week = pweek
-    user = puser
-
+def parse(week,user):
     tree = ET.parse('.\\'+week+'\\'+user+'\\Document.xml')
     root = tree.getroot()
 
@@ -61,15 +55,24 @@ def parse(pweek,puser):
         documentcreated = docgroup.find('.//ap:DateTimeStamps',ns).attrib["Created"]
         documentlastmodified = docgroup.find('.//ap:DateTimeStamps',ns).attrib["LastModified"]
         documentversion = docgroup.find('.//ap:Version',ns).attrib["Major"]
-    firstcolumns = ("%s;%s;%s;%s;%s"%(week,user,documentcreated,documentlastmodified,documentversion))
     ret = ""
     for onetopic in root.findall('.//ap:OneTopic',ns):
         for topic in onetopic.findall('./ap:Topic',ns):
-            ret = ret + subtopic(firstcolumns,topic,0,[])
+            elements = subtopic(topic,0,[])
             # floating topics also (MSc for BSc)
             for floatingtopics in topic.findall('./ap:FloatingTopics',ns):
                 for fttopic in floatingtopics.findall('./ap:Topic',ns):
-                    ret = ret + subtopic(firstcolumns,fttopic,0,[])
+                    elements = elements + subtopic(fttopic,0,[])
+
+            for e in elements:
+                (topic3oid,topic3plaintext,topiclevel,parents) = e
+                (topic2oid,topic2plaintext) = parents[0]
+                (topic1oid,topic1plaintext) = parents[1]
+                (topic0oid,topic0plaintext) = parents[2]
+                ret = ret + ("%s;%s;%s;%s;%s;\"%s\";\"%s\";\"%s\";\"%s\";\"%s\";\"%s\";\"%s\";\"%s\"\n"%
+                          (week,user,documentcreated,documentlastmodified,documentversion,
+                           topic3oid,topic3plaintext,topic2oid,topic2plaintext,topic1oid,topic1plaintext,topic0oid,topic0plaintext)
+                          )
     return ret.encode('utf-8')
 
 def main(argv):
@@ -85,6 +88,7 @@ def main(argv):
         elif opt in ("-u", "--user"): user = arg
         elif opt in ("-d", "--debug"): debug = True
     if not week or not user:
+        print "Mandatory arguments missing. Exiting."
         sys.exit(2)
 
     print getheader()+parse(week,user)
