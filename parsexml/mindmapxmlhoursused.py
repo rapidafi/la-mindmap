@@ -8,10 +8,7 @@ Return or output result as CSV-like data.
 """
 
 import sys, os, getopt
-import xml.etree.ElementTree as ET
-
-# "globals"
-ns = {'ap': 'http://schemas.mindjet.com/MindManager/Application/2003'}
+import mindmapxml as mm
 
 def getheader():
     ret = "week;user;documentCreated;documentLastModified;documentVersion"
@@ -19,38 +16,27 @@ def getheader():
     ret = ret + "\n"
     return (ret).encode('utf-8')
 
-def gettopic(topic):
-    topicoid = topic.attrib["OId"]
-    topicplaintext = None
-    for topictext in topic.findall('./ap:Text',ns):
-        topicplaintext = topictext.attrib["PlainText"]
-    return (topicoid,topicplaintext)
-
 def getcustomproperty(topic):
     # only return value when there's hours used information
-    for custompropertiesbusinessdata in topic.findall('./ap:BusinessDataGroup/ap:CustomPropertiesBusinessData',ns):
-        for customproperty in custompropertiesbusinessdata.findall('./ap:CustomPropertyGroup/ap:CustomProperty',ns):
+    for custompropertiesbusinessdata in topic.findall('./ap:BusinessDataGroup/ap:CustomPropertiesBusinessData',mm.ns):
+        for customproperty in custompropertiesbusinessdata.findall('./ap:CustomPropertyGroup/ap:CustomProperty',mm.ns):
             custompropertyname = customproperty.attrib["CustomPropertyName"]
-            for custompropertyvalue in customproperty.findall('./ap:CustomPropertyValue',ns):
+            for custompropertyvalue in customproperty.findall('./ap:CustomPropertyValue',mm.ns):
                 number = custompropertyvalue.attrib["Number"]
                 return (custompropertyname,number)
     return (None,None)
 
 # for module usage pass arguments
 def parse(week,user):
-    tree = ET.parse('.\\'+week+'\\'+user+'\\Document.xml')
-    root = tree.getroot()
+    root = mm.getroot(week,user)
 
-    for docgroup in root.findall('.//ap:DocumentGroup',ns):
-        documentcreated = docgroup.find('.//ap:DateTimeStamps',ns).attrib["Created"]
-        documentlastmodified = docgroup.find('.//ap:DateTimeStamps',ns).attrib["LastModified"]
-        documentversion = docgroup.find('.//ap:Version',ns).attrib["Major"]
+    (documentcreated,documentlastmodified,documentversion) = mm.getdocinfo(root)
     ret = ""
     # get any and all topics
-    for topic in root.findall('.//ap:Topic',ns):
+    for topic in root.findall('.//ap:Topic',mm.ns):
         (prop,number) = getcustomproperty(topic)
         if prop:
-            (topicoid,topicplaintext) = gettopic(topic)
+            (topicoid,topicplaintext) = mm.gettopic(topic)
             ret = ret + ("%s;%s;%s;%s;%s;\"%s\";\"%s\";\"%s\";\"%s\"\n"%
                 (week,user,documentcreated,documentlastmodified,documentversion,
                  topicoid,topicplaintext,prop,number))
@@ -59,8 +45,6 @@ def parse(week,user):
 
 def main(argv):
     debug = False
-    week = None
-    user = None
 
     try:
         opts, args = getopt.getopt(argv,"w:u:d",["week=","user=","debug"])

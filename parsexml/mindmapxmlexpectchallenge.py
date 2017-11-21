@@ -8,10 +8,7 @@ Return or output result as CSV-like data.
 """
 
 import sys, os, getopt
-import xml.etree.ElementTree as ET
-
-# "globals"
-ns = {'ap': 'http://schemas.mindjet.com/MindManager/Application/2003'}
+import mindmapxml as mm
 
 def getheader():
     ret = "week;user;documentCreated;documentLastModified;documentVersion"
@@ -19,54 +16,28 @@ def getheader():
     ret = ret + "\n"
     return (ret).encode('utf-8')
 
-def gettopic(topic):
-    topicoid = topic.attrib["OId"]
-    topicplaintext = None
-    for topictext in topic.findall('./ap:Text',ns):
-        topicplaintext = topictext.attrib["PlainText"]
-    return (topicoid,topicplaintext)
-
-def gettopicpercentage(topic):
-    topictaskpercentage = None
-    for topictask in topic.findall('./ap:Task',ns):
-        topictaskpercentage = topictask.attrib["TaskPercentage"]
-    return (topictaskpercentage)
-
-def gettopicicon(topic):
-    topicicontype = None
-    for topicicon in topic.findall('./ap:IconsGroup/ap:Icons/ap:Icon',ns):
-        topicicontype = topicicon.attrib["IconType"]
-    return (topicicontype)
-
 # for module usage pass arguments
-def parse(pweek,puser):
-    week = pweek
-    user = puser
+def parse(week,user):
+    root = mm.getroot(week,user)
 
-    tree = ET.parse('.\\'+week+'\\'+user+'\\Document.xml')
-    root = tree.getroot()
-
-    for docgroup in root.findall('.//ap:DocumentGroup',ns):
-        documentcreated = docgroup.find('.//ap:DateTimeStamps',ns).attrib["Created"]
-        documentlastmodified = docgroup.find('.//ap:DateTimeStamps',ns).attrib["LastModified"]
-        documentversion = docgroup.find('.//ap:Version',ns).attrib["Major"]
+    (documentcreated,documentlastmodified,documentversion) = mm.getdocinfo(root)
     firstcolumns = ("%s;%s;%s;%s;%s"%(week,user,documentcreated,documentlastmodified,documentversion))
     ret = ""
-    for topic in root.findall('.//ap:OneTopic/ap:Topic',ns):
-        (toid,ttext) = gettopic(topic)
-        (tpercentage) = gettopicpercentage(topic)
-        (ticon) = gettopicicon(topic)
-        for fttopic in topic.findall('./ap:FloatingTopics/ap:Topic',ns):
+    for topic in root.findall('.//ap:OneTopic/ap:Topic',mm.ns):
+        (toid,ttext) = mm.gettopic(topic)
+        (tpercentage) = mm.gettopicpercentage(topic)
+        (ticon) = mm.gettopicicon(topic)
+        for fttopic in topic.findall('./ap:FloatingTopics/ap:Topic',mm.ns):
             # path to Expectations and ...challenges
-            for atopic in fttopic.findall('./ap:SubTopics/ap:Topic',ns):
-                (aoid,atext) = gettopic(atopic)
-                (apercentage) = gettopicpercentage(atopic)
-                (aicon) = gettopicicon(atopic)
+            for atopic in fttopic.findall('./ap:SubTopics/ap:Topic',mm.ns):
+                (aoid,atext) = mm.gettopic(atopic)
+                (apercentage) = mm.gettopicpercentage(atopic)
+                (aicon) = mm.gettopicicon(atopic)
                 # one way (opiskelija1)
-                for btopic in atopic.findall('./ap:FloatingTopics/ap:Topic',ns):
-                    (boid,btext) = gettopic(btopic)
-                    (bpercentage) = gettopicpercentage(btopic)
-                    (bicon) = gettopicicon(btopic)
+                for btopic in atopic.findall('./ap:FloatingTopics/ap:Topic',mm.ns):
+                    (boid,btext) = mm.gettopic(btopic)
+                    (bpercentage) = mm.gettopicpercentage(btopic)
+                    (bicon) = mm.gettopicicon(btopic)
                     ret = ret + firstcolumns
                     ret = ret + ";\"%s\";\"%s\""%(boid,btext)
                     ret = ret + ";\"%s\""%(bpercentage) # task percentage
@@ -76,19 +47,19 @@ def parse(pweek,puser):
                     ret = ret + ";\"%s\";\"%s\""%(toid,ttext)
                     ret = ret + "\n"
                 # alternative way with enormous hierarchy and false location of written text (opiskelija2)
-                for btopic in atopic.findall('./ap:SubTopics/ap:Topic',ns):
-                    (boid,btext) = gettopic(btopic)
-                    (bpercentage) = gettopicpercentage(btopic)
-                    (bicon) = gettopicicon(btopic)
+                for btopic in atopic.findall('./ap:SubTopics/ap:Topic',mm.ns):
+                    (boid,btext) = mm.gettopic(btopic)
+                    (bpercentage) = mm.gettopicpercentage(btopic)
+                    (bicon) = mm.gettopicicon(btopic)
                     #TODO: fixme: b and c are actually parent topics which replace fttopic and atopic above in this scenario (only c is interesting, though)
-                    for ctopic in btopic.findall('./ap:SubTopics/ap:Topic',ns):
-                        (coid,ctext) = gettopic(ctopic)
-                        (cpercentage) = gettopicpercentage(ctopic)
-                        (cicon) = gettopicicon(ctopic)
-                        for dtopic in ctopic.findall('./ap:FloatingTopics/ap:Topic',ns):
-                            (doid,dtext) = gettopic(dtopic)
-                            (dpercentage) = gettopicpercentage(dtopic)
-                            (dicon) = gettopicicon(dtopic)
+                    for ctopic in btopic.findall('./ap:SubTopics/ap:Topic',mm.ns):
+                        (coid,ctext) = mm.gettopic(ctopic)
+                        (cpercentage) = mm.gettopicpercentage(ctopic)
+                        (cicon) = mm.gettopicicon(ctopic)
+                        for dtopic in ctopic.findall('./ap:FloatingTopics/ap:Topic',mm.ns):
+                            (doid,dtext) = mm.gettopic(dtopic)
+                            (dpercentage) = mm.gettopicpercentage(dtopic)
+                            (dicon) = mm.gettopicicon(dtopic)
                             #TODO: do we want to gather the false way written texts?
                             # if not, choose this:
                             """
@@ -104,8 +75,8 @@ def parse(pweek,puser):
                             # if we do want to support the wrong way, choose this:
                             #"""
                             # append by gathering texts from subtopics of dtopic
-                            for etopic in dtopic.findall('./ap:SubTopics/ap:Topic',ns):
-                                for topictext in etopic.findall('./ap:Text',ns):
+                            for etopic in dtopic.findall('./ap:SubTopics/ap:Topic',mm.ns):
+                                for topictext in etopic.findall('./ap:Text',mm.ns):
                                     dtext = dtext + topictext.attrib["PlainText"] + ", "
                             ret = ret + firstcolumns
                             ret = ret + ";\"%s\";\"%s\""%(doid,dtext)

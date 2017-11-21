@@ -8,10 +8,7 @@ Return or output result as CSV-like data.
 """
 
 import sys, os, getopt
-import xml.etree.ElementTree as ET
-
-# "globals"
-ns = {'ap': 'http://schemas.mindjet.com/MindManager/Application/2003'}
+import mindmapxml as mm
 
 def getheader():
     ret = "week;user;documentCreated;documentLastModified;documentVersion"
@@ -19,63 +16,25 @@ def getheader():
     ret = ret + "\n"
     return ret.encode('utf-8')
 
-def gettopic(topic):
-    topicoid = topic.attrib["OId"]
-    topicplaintext = None
-    for topictext in topic.findall('./ap:Text',ns):
-        topicplaintext = topictext.attrib["PlainText"]
-    return (topicoid,topicplaintext)
-
-def gettopicpercentage(topic):
-    topictaskpercentage = None
-    for topictask in topic.findall('./ap:Task',ns):
-        topictaskpercentage = topictask.attrib["TaskPercentage"]
-    return (topictaskpercentage)
-
-def gettopicicon(topic):
-    topicicontype = None
-    for topicicon in topic.findall('./ap:IconsGroup/ap:Icons/ap:Icon',ns):
-        topicicontype = topicicon.attrib["IconType"]
-    return (topicicontype)
-    
-def subtopic(parenttopic,topiclevel):
-    topiclevel = topiclevel + 1
-    ret = []
-    for topic in parenttopic.findall('./ap:SubTopics/ap:Topic',ns):
-        if topiclevel == 3:
-            (topicoid,topicplaintext) = gettopic(topic)
-            ret.append((topicoid,topicplaintext,topiclevel,gettopicpercentage(topic),gettopicicon(topic)))
-        # recursively loop subtopics and defuse list in list
-        for e in subtopic(topic,topiclevel):
-            ret.append(e)
-    return ret
-
 # for module usage pass arguments
 def parse(week,user):
-    tree = ET.parse('.\\'+week+'\\'+user+'\\Document.xml')
-    root = tree.getroot()
+    root = mm.getroot(week,user)
 
-    for docgroup in root.findall('.//ap:DocumentGroup',ns):
-        documentcreated = docgroup.find('.//ap:DateTimeStamps',ns).attrib["Created"]
-        documentlastmodified = docgroup.find('.//ap:DateTimeStamps',ns).attrib["LastModified"]
-        documentversion = docgroup.find('.//ap:Version',ns).attrib["Major"]
+    (documentcreated,documentlastmodified,documentversion) = mm.getdocinfo(root)
     ret = ""
-    for onetopic in root.findall('.//ap:OneTopic',ns):
-        for topic in onetopic.findall('./ap:Topic',ns):
-            elements = subtopic(topic,0)
+    for onetopic in root.findall('.//ap:OneTopic',mm.ns):
+        for topic in onetopic.findall('./ap:Topic',mm.ns):
+            elements = mm.subtopic(topic,0,[])
             for e in elements:
-                (topicoid,topicplaintext,topiclevel,topicpercentage,topicicon) = e
+                (topicoid,topicplaintext,topiclevel,topicpercentage,topicicon,parents) = e
                 ret = ret + ("%s;%s;%s;%s;%s;\"%s\";%s;\"%s\";%s;%s\n"%
                       (week,user,documentcreated,documentlastmodified,documentversion,
                        topicoid,topiclevel,topicplaintext,topicpercentage,topicicon)
                       )
     return ret.encode('utf-8')
 
-
 def main(argv):
     debug = False
-    week = None
-    user = None
 
     try:
         opts, args = getopt.getopt(argv,"w:u:d",["week=","user=","debug"])

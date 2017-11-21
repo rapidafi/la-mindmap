@@ -8,10 +8,7 @@ Return or output result as CSV-like data.
 """
 
 import sys, os, getopt
-import xml.etree.ElementTree as ET
-
-# "globals"
-ns = {'ap': 'http://schemas.mindjet.com/MindManager/Application/2003'}
+import mindmapxml as mm
 
 def getheader():
     ret = "week;user;documentCreated;documentLastModified;documentVersion"
@@ -19,55 +16,19 @@ def getheader():
     ret = ret + "\n"
     return (ret).encode('utf-8')
 
-def gettopic(topic):
-    topicoid = topic.attrib["OId"]
-    topicplaintext = None
-    for topictext in topic.findall('./ap:Text',ns):
-        topicplaintext = topictext.attrib["PlainText"]
-    return (topicoid,topicplaintext)
-
-def gettopicicon(topic):
-    topicicontype = None
-    for topicicon in topic.findall('./ap:IconsGroup/ap:Icons/ap:Icon',ns):
-        topicicontype = topicicon.attrib["IconType"]
-    return (topicicontype)
-
-def getpriority(topic):
-    taskpriority = None
-    taskpercentage = None
-    for task in topic.findall('./ap:Task',ns):
-        if "TaskPriority" in task.attrib:
-            taskpriority = task.attrib["TaskPriority"]
-        if "TaskPercentage" in task.attrib:
-            taskpercentage = task.attrib["TaskPercentage"]
-    return (taskpriority,taskpercentage)
-
-def getprioritymarker(root,priority):
-    taskprioritymarkername = None
-    for taskprioritymarker in root.findall('.//ap:TaskPriorityMarker',ns):
-        for taskpriority in taskprioritymarker.findall('./ap:TaskPriority',ns):
-            if "TaskPriority" in taskpriority.attrib:
-                if priority == taskpriority.attrib["TaskPriority"]:
-                    taskprioritymarkername = taskprioritymarker.find('./ap:Name',ns).attrib["Name"]
-    return (taskprioritymarkername)
-
 # for module usage pass arguments
 def parse(week,user):
-    tree = ET.parse('.\\'+week+'\\'+user+'\\Document.xml')
-    root = tree.getroot()
+    root = mm.getroot(week,user)
 
-    for docgroup in root.findall('.//ap:DocumentGroup',ns):
-        documentcreated = docgroup.find('.//ap:DateTimeStamps',ns).attrib["Created"]
-        documentlastmodified = docgroup.find('.//ap:DateTimeStamps',ns).attrib["LastModified"]
-        documentversion = docgroup.find('.//ap:Version',ns).attrib["Major"]
+    (documentcreated,documentlastmodified,documentversion) = mm.getdocinfo(root)
     ret = ""
-    for topic in root.findall('.//ap:Topic',ns):
-        (priority,percentage) = getpriority(topic)
+    for topic in root.findall('.//ap:Topic',mm.ns):
+        (priority,percentage) = mm.getpriority(topic)
         if priority:
-            (topicoid,topicplaintext) = gettopic(topic)
+            (topicoid,topicplaintext) = mm.gettopic(topic)
             ret = ret + ("%s;%s;%s;%s;%s;\"%s\";\"%s\";\"%s\";\"%s\";%s\n"%
                 (week,user,documentcreated,documentlastmodified,documentversion,
-                 topicoid,topicplaintext,gettopicicon(topic),getprioritymarker(root,priority),percentage))
+                 topicoid,topicplaintext,mm.gettopicicon(topic),mm.getprioritymarker(root,priority),percentage))
 
     return ret.encode('utf-8')
 

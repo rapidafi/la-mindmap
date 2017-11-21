@@ -8,10 +8,7 @@ Return or output result as CSV-like data.
 """
 
 import sys, os, getopt
-import xml.etree.ElementTree as ET
-
-# "globals"
-ns = {'ap': 'http://schemas.mindjet.com/MindManager/Application/2003'}
+import mindmapxml as mm
 
 def getheader():
     ret = "week;user;documentCreated;documentLastModified;documentVersion"
@@ -19,34 +16,23 @@ def getheader():
     ret = ret + "\n"
     return (ret).encode('utf-8')
 
-def gettopic(topic):
-    topicoid = topic.attrib["OId"]
-    topicplaintext = None
-    for topictext in topic.findall('./ap:Text',ns):
-        topicplaintext = topictext.attrib["PlainText"]
-    return (topicoid,topicplaintext)
-
 # for module usage pass arguments
 def parse(week,user):
-    tree = ET.parse('.\\'+week+'\\'+user+'\\Document.xml')
-    root = tree.getroot()
+    root = mm.getroot(week,user)
 
-    for docgroup in root.findall('.//ap:DocumentGroup',ns):
-        documentcreated = docgroup.find('.//ap:DateTimeStamps',ns).attrib["Created"]
-        documentlastmodified = docgroup.find('.//ap:DateTimeStamps',ns).attrib["LastModified"]
-        documentversion = docgroup.find('.//ap:Version',ns).attrib["Major"]
+    (documentcreated,documentlastmodified,documentversion) = mm.getdocinfo(root)
     ret = ""
-    for relationships in root.findall('.//ap:Relationships',ns):
-        for relationship in relationships.findall('./ap:Relationship',ns):
+    for relationships in root.findall('.//ap:Relationships',mm.ns):
+        for relationship in relationships.findall('./ap:Relationship',mm.ns):
             topicoid = None
             reltopicoid = None
-            for objref in relationship.findall('./ap:ConnectionGroup[@Index="0"]/ap:Connection/ap:ObjectReference',ns):
+            for objref in relationship.findall('./ap:ConnectionGroup[@Index="0"]/ap:Connection/ap:ObjectReference',mm.ns):
                 topicoid = objref.attrib["OIdRef"]
-            for objref in relationship.findall('./ap:ConnectionGroup[@Index="1"]/ap:Connection/ap:ObjectReference',ns):
+            for objref in relationship.findall('./ap:ConnectionGroup[@Index="1"]/ap:Connection/ap:ObjectReference',mm.ns):
                 reltopicoid = objref.attrib["OIdRef"]
 
-            for topic in relationship.findall('./ap:FloatingTopics/ap:Topic',ns):
-                (realtopicoid,topicplaintext) = gettopic(topic)
+            for topic in relationship.findall('./ap:FloatingTopics/ap:Topic',mm.ns):
+                (realtopicoid,topicplaintext) = mm.gettopic(topic)
                 # realtopicoid is the topics actual own oid (not interested...)
                 ret = ret + ("%s;%s;%s;%s;%s;\"%s\";\"%s\";\"%s\"\n"%
                       (week,user,documentcreated,documentlastmodified,documentversion,
