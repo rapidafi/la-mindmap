@@ -32,9 +32,23 @@ def parse(week,user):
 
             for e in elements:
                 (topic3oid,topic3plaintext,topiclevel,topicpercent,topicicon,parents) = e
-                (topic2oid,topic2plaintext) = parents[0]
-                (topic1oid,topic1plaintext) = parents[1]
-                (topic0oid,topic0plaintext) = parents[2]
+                # possibly rethink this next structure:
+                # this is due to changing from topiclevel==3 only to include all levels also
+                if topiclevel>=3:
+                    (topic0oid,topic0plaintext) = parents[0]
+                    (topic1oid,topic1plaintext) = parents[1]
+                    (topic2oid,topic2plaintext) = parents[2]
+                elif topiclevel==2:
+                    (topic0oid,topic0plaintext) = parents[0]
+                    (topic1oid,topic1plaintext) = parents[1]
+                    (topic2oid,topic2plaintext) = (topic3oid,topic3plaintext)
+                    (topic3oid,topic3plaintext) = (None,None)
+                elif topiclevel==1:
+                    (topic0oid,topic0plaintext) = parents[0]
+                    (topic1oid,topic1plaintext) = (topic3oid,topic3plaintext)
+                    (topic2oid,topic2plaintext) = (None,None)
+                    (topic3oid,topic3plaintext) = (None,None)
+
                 ret = ret + ("%s;%s;%s;%s;%s;\"%s\";\"%s\";\"%s\";\"%s\";\"%s\";\"%s\";\"%s\";\"%s\"\n"%
                           (week,user,documentcreated,documentlastmodified,documentversion,
                            topic3oid,topic3plaintext,topic2oid,topic2plaintext,topic1oid,topic1plaintext,topic0oid,topic0plaintext)

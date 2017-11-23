@@ -55,9 +55,9 @@ def getprioritymarker(root,priority):
     return (taskprioritymarkername)
 
 def getparents(parents):
-    # collect all the parents to same line, reversed!
+    # collect all the parents to same line
     ret = []
-    for p in reversed(parents):
+    for p in parents:
         ret.append(gettopic(p))
     return ret
 
@@ -66,7 +66,7 @@ def subtopic(parenttopic,topiclevel,parents):
     parents.append(parenttopic)
     ret = []
     for topic in parenttopic.findall('./ap:SubTopics/ap:Topic',ns):
-        if topiclevel == 3:
+        if 1==1: #topiclevel == 3:
             (topicoid,topicplaintext) = gettopic(topic)
             ret.append((topicoid,topicplaintext,topiclevel,gettopicpercentage(topic),gettopicicon(topic),getparents(parents)))
         # recursively loop subtopics and defuse list in list
