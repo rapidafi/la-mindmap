@@ -55,9 +55,9 @@ def getprioritymarker(root,priority):
     return (taskprioritymarkername)
 
 def getparents(parents):
-    # collect all the parents to same line
+    # collect all the parents to same line, reversed!
     ret = []
-    for p in parents:
+    for p in reversed(parents):
         ret.append(gettopic(p))
     return ret
 

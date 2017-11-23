@@ -35,12 +35,12 @@ def parse(week,user):
                 # possibly rethink this next structure:
                 # this is due to changing from topiclevel==3 only to include all levels also
                 if topiclevel>=3:
-                    (topic0oid,topic0plaintext) = parents[0]
+                    (topic0oid,topic0plaintext) = parents[2]
                     (topic1oid,topic1plaintext) = parents[1]
-                    (topic2oid,topic2plaintext) = parents[2]
+                    (topic2oid,topic2plaintext) = parents[0]
                 elif topiclevel==2:
-                    (topic0oid,topic0plaintext) = parents[0]
-                    (topic1oid,topic1plaintext) = parents[1]
+                    (topic0oid,topic0plaintext) = parents[1]
+                    (topic1oid,topic1plaintext) = parents[0]
                     (topic2oid,topic2plaintext) = (topic3oid,topic3plaintext)
                     (topic3oid,topic3plaintext) = (None,None)
                 elif topiclevel==1:
