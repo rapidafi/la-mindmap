@@ -20,13 +20,15 @@ def gettopic(topic):
     topicoid = topic.attrib["OId"]
     topicplaintext = None
     for topictext in topic.findall('./ap:Text',ns):
-        topicplaintext = topictext.attrib["PlainText"]
+        if "PlainText" in topictext.attrib:
+            topicplaintext = topictext.attrib["PlainText"]
     return (topicoid,topicplaintext)
 
 def gettopicpercentage(topic):
     topictaskpercentage = None
     for topictask in topic.findall('./ap:Task',ns):
-        topictaskpercentage = topictask.attrib["TaskPercentage"]
+        if "TaskPercentage" in topictask.attrib:
+            topictaskpercentage = topictask.attrib["TaskPercentage"]
     return (topictaskpercentage)
 
 def gettopicicon(topic):

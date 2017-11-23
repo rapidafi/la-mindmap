@@ -23,11 +23,13 @@ fxptchlg = None
 fhours = None
 fimport = None
 
-def handle(folder,item):
+def handle(folder,item,debug):
     user = re.sub(r'^([^_]+)[_.].*$',r'\1',item)
     if not os.path.exists(folder+'\\'+user):
         print("USER DIRECTORY MISSING!",folder,user,item)
 
+    if debug: print "user",user
+    
     topiccsv = mindmapxmltopic.parse(folder,user)
     treecsv = mindmapxmltree.parse(folder,user)
     relshipcsv = mindmapxmlrelationship.parse(folder,user)
@@ -41,7 +43,7 @@ def handle(folder,item):
     fhours.write(hourscsv)
     fimport.write(importcsv)
 
-def process(folders,extension):
+def process(folders,extension,debug):
     global ftopic, ftree, frelship, fxptchlg, fhours, fimport
 
     ftopic = open('mindmaptopic.csv', 'w')
@@ -61,7 +63,7 @@ def process(folders,extension):
     for folder in folders:
         for item in os.listdir(folder):
             if item.endswith(extension):
-                handle(folder,item)
+                handle(folder,item,debug)
 
     ftopic.close()
     ftree.close()
@@ -117,7 +119,7 @@ def main(argv):
         sys.exit(2)
 
     if debug: print "weeks",weeks
-    process(weeks,extension)
+    process(weeks,extension,debug)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
