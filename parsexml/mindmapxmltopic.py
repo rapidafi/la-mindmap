@@ -34,6 +34,8 @@ def parse(week,user):
     return ret.encode('utf-8')
 
 def main(argv):
+    week = None
+    user = None
     debug = False
 
     try:
