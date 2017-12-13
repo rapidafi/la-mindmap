@@ -77,7 +77,8 @@ def parse(week,user):
                             # append by gathering texts from subtopics of dtopic
                             for etopic in dtopic.findall('./ap:SubTopics/ap:Topic',mm.ns):
                                 for topictext in etopic.findall('./ap:Text',mm.ns):
-                                    dtext = dtext + topictext.attrib["PlainText"] + ", "
+                                    dtext = dtext + topictext.attrib["PlainText"].replace('"','""') #nb! for CSV replace "->""
+                                    dtext = dtext + ", "
                             ret = ret + firstcolumns
                             ret = ret + ";\"%s\";\"%s\""%(doid,dtext)
                             ret = ret + ";%s"%(dpercentage) # task percentage
