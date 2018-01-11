@@ -17,16 +17,11 @@ ns = {
     "ap": "http://schemas.mindjet.com/MindManager/Application/2003",
     "cor": "http://schemas.mindjet.com/MindManager/Core/2003",
     "pri": "http://schemas.mindjet.com/MindManager/Primitive/2003",
-    #"cst": "http://schemas.mindjet.com/MindManager/UpdateCompatibility/2004",
     "xsi": "http://www.w3.org/2001/XMLSchema-instance"
 }
-#xsi:schemaLocation="http://schemas.mindjet.com/MindManager/Application/2003 http://schemas.mindjet.com/MindManager/Application/2003 http://schemas.mindjet.com/MindManager/Core/2003 http://schemas.mindjet.com/MindManager/Core/2003 http://schemas.mindjet.com/MindManager/Delta/2003 http://schemas.mindjet.com/MindManager/Delta/2003 http://schemas.mindjet.com/MindManager/Primitive/2003 http://schemas.mindjet.com/MindManager/Primitive/2003"
-#print(ns)
-#print(ns['ap'])
 ap = ns['ap'] #comfort
 cor = ns['cor']
 pri = ns['pri']
-#cst = ns['cst']
 xsi = ns['xsi']
 ET.register_namespace('ap',ap)
 ET.register_namespace('cor',cor)
@@ -48,19 +43,12 @@ def randomid(len=16,debug=False):
 def addtopic(parent,plaintext):
     topic = ET.SubElement(parent, '{%s}Topic'%(ap))
     topic.set("OId",randomid())
-    #topic.set("Gen","0000000000000000")
-    #topic.set("Dirty","0000000000000001")
     #NB! Placeholder!
     subtopics = ET.SubElement(topic, '{%s}SubTopics'%(ap))
-    #topicviewgroup = ET.SubElement(topic, '{%s}TopicViewGroup'%(ap))
-    #topicviewgroup.set("ViewIndex","0")
     text = ET.SubElement(topic, '{%s}Text'%(ap))
     text.set("PlainText",plaintext)
     text.set("ReadOnly","false")
-    #text.set("Dirty","0000000000000000")
     font = ET.SubElement(text, '{%s}Font'%(ap))
-
-    # return
     return topic
 
 """Return a pretty-printed XML string for the Element.
@@ -70,25 +58,23 @@ def prettify(elem):
     reparsed = minidom.parseString(rough_string)
     return reparsed.toprettyxml(indent="  ")
 
-############################################################################
-
+"""M A I N
+"""
 def main(argv):
-    templatedir = "template0/"
-    documentfile = "Document.xml"
-    zipfile = "mindmapxmlgen.mmap"
     makezip = False
+    zipfile = "mindmapxmlgen.mmap"
+    documentfile = "Document.xml"
     debug = False
 
     try:
-        opts, args = getopt.getopt(argv,"t:f:z:Zd",["templatedir=","documentfile=","zipfile=","makezip","debug"])
+        opts, args = getopt.getopt(argv,"Zz:f:d",["makezip","zipfile=","documentfile=","debug"])
     except getopt.GetoptError as err:
         print(err)
         sys.exit(2)
     for opt, arg in opts:
-        if opt in ("-t", "--templatedir"): templatedir = arg
-        elif opt in ("-f", "--documentfile"): documentfile = arg
+        if opt in ("-Z", "--makezip"): makezip = True
         elif opt in ("-z", "--zipfile"): zipfile = arg
-        elif opt in ("-Z", "--makezip"): makezip = True
+        elif opt in ("-f", "--documentfile"): documentfile = arg
         elif opt in ("-d", "--debug"): debug = True
 
     root = ET.Element('{%s}Map'%(ap))
@@ -96,24 +82,6 @@ def main(argv):
     ##root.set("xmlns:ap","http://schemas.mindjet.com/MindManager/Application/2003")
 
     onetopic = ET.SubElement(root, '{%s}OneTopic'%(ap))
-
-    """
-    Tutkinto
-    - Oppiaine 1
-    -- Kurssi 1
-    --- Sisältö 1
-    --- Sisältö 2
-    -- Kurssi 2
-    --- Sisältö 3
-    --- Sisältö 4
-    - Oppiaine 2
-    -- Kurssi 3
-    --- Sisältö 5
-    --- Sisältö 6
-    -- Kurssi 4
-    --- Sisältö 7
-    --- Sisältö 8
-    """
 
     topic0 = addtopic(onetopic, "Koneenrakennus ja mekaniikka")
     for subtopics0 in topic0.findall('.//ap:SubTopics',ns):
@@ -141,8 +109,6 @@ def main(argv):
     if debug: print(prettify(root))
 
     if makezip:
-        xsddir='xsd/'
-        backgroundfile='bin/background.png'
         print("writing to file:",documentfile)
         f = open(documentfile, 'w', encoding='utf-8')
         #f.write(ET.tostring(root).decode('utf-8'))
@@ -153,12 +119,6 @@ def main(argv):
         with ZipFile(zipfile,'w',compression=ZIP_DEFLATED) as z:
             if debug: print("zipping:",documentfile)
             z.write(documentfile)
-            #for fn in os.listdir(templatedir+xsddir):
-            #    if os.path.isfile(templatedir+xsddir+fn):
-            #        if debug: print("zipping:",templatedir+xsddir+fn)
-            #        z.write(filename=templatedir+xsddir+fn,arcname=xsddir+fn)
-            #if debug: print("zipping:",templatedir+backgroundfile)
-            #z.write(filename=templatedir+backgroundfile,arcname=backgroundfile)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
