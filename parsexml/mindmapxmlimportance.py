@@ -11,24 +11,22 @@ import sys, os, getopt
 import mindmapxml as mm
 
 def getheader():
-    ret = "week;user;documentCreated;documentLastModified;documentVersion"
-    ret = ret + ";topicOid;topicPlainText;topicIconType;Priority;Percentage"
-    ret = ret + "\n"
-    return (ret)
+    ret = [["week","user","documentCreated","documentLastModified","documentVersion",
+        "topicOid","topicPlainText","topicIconType","Priority","Percentage"]]
+    return ret
 
 # for module usage pass arguments
 def parse(week,user):
     root = mm.getroot(week,user)
 
     (documentcreated,documentlastmodified,documentversion) = mm.getdocinfo(root)
-    ret = ""
+    ret = []
     for topic in root.findall('.//ap:Topic',mm.ns):
         (priority,percentage) = mm.getpriority(topic)
         if priority:
             (topicoid,topicplaintext) = mm.gettopic(topic)
-            ret = ret + ("%s;%s;%s;%s;%s;\"%s\";\"%s\";\"%s\";\"%s\";%s\n"%
-                (week,user,documentcreated,documentlastmodified,documentversion,
-                 topicoid,topicplaintext,mm.gettopicicon(topic),mm.getprioritymarker(root,priority),percentage))
+            ret.append([week,user,documentcreated,documentlastmodified,documentversion,
+                 topicoid,topicplaintext,mm.gettopicicon(topic),mm.getprioritymarker(root,priority),percentage])
 
     return ret
 

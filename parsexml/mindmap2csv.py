@@ -23,6 +23,22 @@ fxptchlg = None
 fhours = None
 fimport = None
 
+def csvq(items):
+    ret = ""
+    for row in items:
+        i = 0
+        for item in row:
+            i = i + 1
+            if i > 1: ret = ret + ";"
+            if item is None:
+                ret = ret
+            elif isinstance(item,int):
+                ret = ret + ("%s"%(item or ""))
+            else:
+                ret = ret + ("\"%s\""%((item or "").replace('"','""'))) #nb! for CSV replace "->""
+        ret = ret + "\n"
+    return ret
+
 def handle(folder,item,debug):
     user = re.sub(r'^([^_]+)[_.].*$',r'\1',item)
     if not os.path.exists(folder+'\\'+user):
@@ -30,12 +46,12 @@ def handle(folder,item,debug):
 
     if debug: print("user",user)
     
-    topiccsv = mindmapxmltopic.parse(folder,user)
-    treecsv = mindmapxmltree.parse(folder,user)
-    relshipcsv = mindmapxmlrelationship.parse(folder,user)
-    xptchlgcsv = mindmapxmlexpectchallenge.parse(folder,user)
-    hourscsv = mindmapxmlhoursused.parse(folder,user)
-    importcsv = mindmapxmlimportance.parse(folder,user)
+    topiccsv = csvq(mindmapxmltopic.parse(folder,user))
+    treecsv = csvq(mindmapxmltree.parse(folder,user))
+    relshipcsv = csvq(mindmapxmlrelationship.parse(folder,user))
+    xptchlgcsv = csvq(mindmapxmlexpectchallenge.parse(folder,user))
+    hourscsv = csvq(mindmapxmlhoursused.parse(folder,user))
+    importcsv = csvq(mindmapxmlimportance.parse(folder,user))
     if sys.version_info.major >= 3:
         ftopic.write(topiccsv)
         ftree.write(treecsv)
@@ -69,12 +85,12 @@ def process(folders,extension,debug):
         fhours = open('mindmaphoursused.csv', 'w')
         fimport = open('mindmapimportance.csv', 'w')
 
-    ftopic.write(mindmapxmltopic.getheader())
-    ftree.write(mindmapxmltree.getheader())
-    frelship.write(mindmapxmlrelationship.getheader())
-    fxptchlg.write(mindmapxmlexpectchallenge.getheader())
-    fhours.write(mindmapxmlhoursused.getheader())
-    fimport.write(mindmapxmlimportance.getheader())
+    ftopic.write(csvq(mindmapxmltopic.getheader()))
+    ftree.write(csvq(mindmapxmltree.getheader()))
+    frelship.write(csvq(mindmapxmlrelationship.getheader()))
+    fxptchlg.write(csvq(mindmapxmlexpectchallenge.getheader()))
+    fhours.write(csvq(mindmapxmlhoursused.getheader()))
+    fimport.write(csvq(mindmapxmlimportance.getheader()))
 
     for folder in folders:
         for item in os.listdir(folder):

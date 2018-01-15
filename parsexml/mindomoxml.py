@@ -12,31 +12,23 @@ import xml.etree.ElementTree as ET
 # "globals"
 ns = {'mo': 'http://schemas.mindomo.com/application/version-2.7'}
 
-csv_on = True
-
 def getroot(week,user):
     tree = ET.parse('.\\'+week+'\\'+user+'\\Document.xml')
     return tree.getroot()
 
 def gettopic(topic):
-    global csv_on
     topicid = topic.attrib["id"]
-    if csv_on: topicid = topicid.replace('"','""') #nb! for CSV replace "->""
     topictext = topic.find('./mo:text',ns).text
-    if csv_on: topictext = topictext.replace('"','""') #nb! for CSV replace "->""
     return (topicid,topictext)
 
 def gettopicsymbol(topic):
-    global csv_on
     topicsymboltext = None
     for topicsymbol in topic.findall('./mo:symbols/mo:symbol',ns):
         if "smiley_" in topicsymbol.text:
             topicsymboltext = topicsymbol.text.replace("smiley_","")
-            if csv_on: topicsymboltext = topicsymboltext.replace('"','""') #nb! for CSV replace "->""
     return (topicsymboltext)
 
 def gettaskcompletion(topic):
-    global csv_on
     #TODO
     return (None)
 

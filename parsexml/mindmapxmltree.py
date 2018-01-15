@@ -11,17 +11,16 @@ import sys, os, getopt
 import mindmapxml as mm
 
 def getheader():
-    ret = "week;user;documentCreated;documentLastModified;documentVersion"
-    ret = ret + ";topic3Oid;topic3PlainText;topic2Oid;topic2PlainText;topic1Oid;topic1PlainText;topic0Oid;topic0PlainText"
-    ret = ret + "\n"
-    return (ret)
+    ret = [["week","user","documentCreated","documentLastModified","documentVersion",
+          "topic3Oid","topic3PlainText","topic2Oid","topic2PlainText","topic1Oid","topic1PlainText","topic0Oid","topic0PlainText"]]
+    return ret
 
 # for module usage pass arguments
 def parse(week,user):
     root = mm.getroot(week,user)
 
     (documentcreated,documentlastmodified,documentversion) = mm.getdocinfo(root)
-    ret = ""
+    ret = []
     for onetopic in root.findall('.//ap:OneTopic',mm.ns):
         for topic in onetopic.findall('./ap:Topic',mm.ns):
             elements = mm.subtopic(topic,0,[])
@@ -49,10 +48,8 @@ def parse(week,user):
                     (topic2oid,topic2plaintext) = (None,None)
                     (topic3oid,topic3plaintext) = (None,None)
 
-                ret = ret + ("%s;%s;%s;%s;%s;\"%s\";\"%s\";\"%s\";\"%s\";\"%s\";\"%s\";\"%s\";\"%s\"\n"%
-                          (week,user,documentcreated,documentlastmodified,documentversion,
-                           topic3oid,topic3plaintext,topic2oid,topic2plaintext,topic1oid,topic1plaintext,topic0oid,topic0plaintext)
-                          )
+                ret.append([week,user,documentcreated,documentlastmodified,documentversion,
+                           topic3oid,topic3plaintext,topic2oid,topic2plaintext,topic1oid,topic1plaintext,topic0oid,topic0plaintext])
     return ret
 
 def main(argv):

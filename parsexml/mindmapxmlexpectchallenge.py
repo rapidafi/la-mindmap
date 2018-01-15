@@ -11,18 +11,19 @@ import sys, os, getopt
 import mindmapxml as mm
 
 def getheader():
-    ret = "week;user;documentCreated;documentLastModified;documentVersion"
-    ret = ret + ";topicOid;topicPlainText;topicPercentage;topic1Oid;topic1PlainText;topic1Percentage;topic1Icon;topic0Oid;topic0PlainText"
-    ret = ret + "\n"
-    return (ret)
+    ret = [["week","user","documentCreated","documentLastModified","documentVersion",
+        "topicOid","topicPlainText","topicPercentage",
+        "topic1Oid","topic1PlainText","topic1Percentage","topic1Icon",
+        "topic0Oid","topic0PlainText"]]
+    return ret
 
 # for module usage pass arguments
 def parse(week,user):
     root = mm.getroot(week,user)
 
     (documentcreated,documentlastmodified,documentversion) = mm.getdocinfo(root)
-    firstcolumns = ("%s;%s;%s;%s;%s"%(week,user,documentcreated,documentlastmodified,documentversion))
-    ret = ""
+    firstcolumns = [week,user,documentcreated,documentlastmodified,documentversion]
+    ret = []
     for topic in root.findall('.//ap:OneTopic/ap:Topic',mm.ns):
         (toid,ttext) = mm.gettopic(topic)
         (tpercentage) = mm.gettopicpercentage(topic)
@@ -38,14 +39,7 @@ def parse(week,user):
                     (boid,btext) = mm.gettopic(btopic)
                     (bpercentage) = mm.gettopicpercentage(btopic)
                     (bicon) = mm.gettopicicon(btopic)
-                    ret = ret + firstcolumns
-                    ret = ret + ";\"%s\";\"%s\""%(boid,btext)
-                    ret = ret + ";\"%s\""%(bpercentage) # task percentage
-                    ret = ret + ";\"%s\";\"%s\""%(aoid,atext)
-                    ret = ret + ";\"%s\""%(apercentage) # parent percentage
-                    ret = ret + ";\"%s\""%(aicon)
-                    ret = ret + ";\"%s\";\"%s\""%(toid,ttext)
-                    ret = ret + "\n"
+                    ret.append(firstcolumns+[boid,btext,bpercentage,aoid,atext,apercentage,aicon,toid,ttext])
                 # alternative way with enormous hierarchy and false location of written text (opiskelija2)
                 for btopic in atopic.findall('./ap:SubTopics/ap:Topic',mm.ns):
                     (boid,btext) = mm.gettopic(btopic)
@@ -79,16 +73,8 @@ def parse(week,user):
                                 for topictext in etopic.findall('./ap:Text',mm.ns):
                                     dtext = dtext + topictext.attrib["PlainText"].replace('"','""') #nb! for CSV replace "->""
                                     dtext = dtext + ", "
-                            ret = ret + firstcolumns
-                            ret = ret + ";\"%s\";\"%s\""%(doid,dtext)
-                            ret = ret + ";%s"%(dpercentage) # task percentage
-                            ret = ret + ";\"%s\";\"%s\""%(coid,ctext)
-                            ret = ret + ";%s"%(cpercentage) # parent percentage
-                            ret = ret + ";\"%s\""%(cicon)
-                            ret = ret + ";\"%s\";\"%s\""%(toid,ttext)
-                            ret = ret + "\n"
+                            ret.append(firstcolumns+[doid,dtext,dpercentage,coid,ctext,cpercentage,cicon,toid,ttext])
                             #"""
-
     return ret
 
 def main(argv):

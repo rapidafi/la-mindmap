@@ -11,27 +11,19 @@ import sys, os, getopt
 import mindomoxml as mm
 
 def getheader():
-    ret = "userID;firstName;lastName;userName"
-    ret = ret + "\n"
-    return (ret)
-
-def t(text):
-    return "\"%s\""%(text or "")
+    return [["userID","firstName","lastName","userName"]]
 
 # for module usage pass arguments
 def parse(week,user):
     root = mm.getroot(week,user)
-
-    ret = ""
+    ret = []
     for user in root.findall('./mo:mapUsers/mo:mapUser',mm.ns):
         (userID,firstName,lastName,userName) = (None,None,None,None)
         if "userID" in user.attrib: userID = user.attrib["userID"]
         if "firstName" in user.attrib: firstName = user.attrib["firstName"]
         if "lastName" in user.attrib: lastName = user.attrib["lastName"]
         if "userName" in user.attrib: userName = user.attrib["userName"]
-
-        ret = ret + ("%s;%s;%s;%s\n"%(t(userID),t(firstName),t(lastName),t(userName)))
-
+        ret.append([userID,firstName,lastName,userName])
     return ret
 
 def main(argv):

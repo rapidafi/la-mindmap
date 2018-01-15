@@ -11,17 +11,16 @@ import sys, os, getopt
 import mindmapxml as mm
 
 def getheader():
-    ret = "week;user;documentCreated;documentLastModified;documentVersion"
-    ret = ret + ";topicOid;relTopicOid;plainText"
-    ret = ret + "\n"
-    return (ret)
+    ret = [["week","user","documentCreated","documentLastModified","documentVersion",
+        "topicOid","relTopicOid","plainText"]]
+    return ret
 
 # for module usage pass arguments
 def parse(week,user):
     root = mm.getroot(week,user)
 
     (documentcreated,documentlastmodified,documentversion) = mm.getdocinfo(root)
-    ret = ""
+    ret = []
     for relationships in root.findall('.//ap:Relationships',mm.ns):
         for relationship in relationships.findall('./ap:Relationship',mm.ns):
             topicoid = None
@@ -34,12 +33,8 @@ def parse(week,user):
             for topic in relationship.findall('./ap:FloatingTopics/ap:Topic',mm.ns):
                 (realtopicoid,topicplaintext) = mm.gettopic(topic)
                 # realtopicoid is the topics actual own oid (not interested...)
-                ret = ret + ("%s;%s;%s;%s;%s;\"%s\";\"%s\";\"%s\"\n"%
-                      (week,user,documentcreated,documentlastmodified,documentversion,
-                      topicoid,reltopicoid,topicplaintext))
-
+                ret.append([week,user,documentcreated,documentlastmodified,documentversion,topicoid,reltopicoid,topicplaintext])
     return ret
-
 
 def main(argv):
     week = None

@@ -11,19 +11,14 @@ import sys, os, getopt
 import mindomoxml as mm
 
 def getheader():
-    ret = "id;name;authorId;creationDate;modificationDate"
-    ret = ret + "\n"
-    return ret
-
-def t(text):
-    return "%s"%("\""+text+"\"" or "")
+    return [["id","name","authorId","creationDate","modificationDate"]]
 
 # for module usage pass arguments
 def parse(week,user):
     root = mm.getroot(week,user)
 
     (id,name,authorId,creationDate,modificationDate) = mm.getdocinfo(root)
-    return ("%s;%s;%s;%s;%s\n"%(t(id),t(name),t(authorId),t(creationDate),t(modificationDate)))
+    return [[id,name,authorId,creationDate,modificationDate]]
 
 def main(argv):
     week = None

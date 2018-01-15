@@ -11,9 +11,8 @@ import sys, os, getopt
 import mindmapxml as mm
 
 def getheader():
-    ret = "week;user;documentCreated;documentLastModified;documentVersion"
-    ret = ret + ";topicOid;topicLevel;topicPlainText;topicTaskPercentage;topicIconType"
-    ret = ret + "\n"
+    ret = [["week","user","documentCreated","documentLastModified","documentVersion",
+        "topicOid","topicLevel","topicPlainText","topicTaskPercentage","topicIconType"]]
     return ret
 
 # for module usage pass arguments
@@ -21,16 +20,14 @@ def parse(week,user):
     root = mm.getroot(week,user)
 
     (documentcreated,documentlastmodified,documentversion) = mm.getdocinfo(root)
-    ret = ""
+    ret = []
     for onetopic in root.findall('.//ap:OneTopic',mm.ns):
         for topic in onetopic.findall('./ap:Topic',mm.ns):
             elements = mm.subtopic(topic,0,[])
             for e in elements:
                 (topicoid,topicplaintext,topiclevel,topicpercentage,topicicon,parents) = e
-                ret = ret + ("%s;%s;%s;%s;%s;\"%s\";%s;\"%s\";%s;%s\n"%
-                      (week,user,documentcreated,documentlastmodified,documentversion,
-                       topicoid,topiclevel,topicplaintext,topicpercentage,topicicon)
-                      )
+                ret.append([week,user,documentcreated,documentlastmodified,documentversion,
+                       topicoid,topiclevel,topicplaintext,topicpercentage,topicicon])
     return ret
 
 def main(argv):

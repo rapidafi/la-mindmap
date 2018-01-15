@@ -11,10 +11,9 @@ import sys, os, getopt
 import mindmapxml as mm
 
 def getheader():
-    ret = "week;user;documentCreated;documentLastModified;documentVersion"
-    ret = ret + ";topicOid;topicPlainText;customPropertyName;number"
-    ret = ret + "\n"
-    return (ret)
+    ret = [["week","user","documentCreated","documentLastModified","documentVersion",
+        "topicOid","topicPlainText","customPropertyName","number"]]
+    return ret
 
 def getcustomproperty(topic):
     # only return value when there's hours used information
@@ -31,16 +30,14 @@ def parse(week,user):
     root = mm.getroot(week,user)
 
     (documentcreated,documentlastmodified,documentversion) = mm.getdocinfo(root)
-    ret = ""
+    ret = []
     # get any and all topics
     for topic in root.findall('.//ap:Topic',mm.ns):
         (prop,number) = getcustomproperty(topic)
         if prop:
             (topicoid,topicplaintext) = mm.gettopic(topic)
-            ret = ret + ("%s;%s;%s;%s;%s;\"%s\";\"%s\";\"%s\";\"%s\"\n"%
-                (week,user,documentcreated,documentlastmodified,documentversion,
-                 topicoid,topicplaintext,prop,number))
-
+            ret.append([week,user,documentcreated,documentlastmodified,documentversion,
+                 topicoid,topicplaintext,prop,number])
     return ret
 
 def main(argv):

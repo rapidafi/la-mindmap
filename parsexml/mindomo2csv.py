@@ -26,6 +26,22 @@ fxptchlg = None
 fhours = None
 fimport = None
 
+def csvq(items):
+    ret = ""
+    for row in items:
+        i = 0
+        for item in row:
+            i = i + 1
+            if i > 1: ret = ret + ";"
+            if item is None:
+                ret = ret
+            elif isinstance(item,int):
+                ret = ret + ("%s"%(item or ""))
+            else:
+                ret = ret + ("\"%s\""%((item or "").replace('"','""'))) #nb! for CSV replace "->""
+        ret = ret + "\n"
+    return ret
+
 def handle(folder,item,debug):
     user = re.sub(r'^([^_]+)[_.].*$',r'\1',item)
     if not os.path.exists(folder+'\\'+user):
@@ -33,11 +49,11 @@ def handle(folder,item,debug):
 
     if debug: print("user",user)
     
-    mapcsv = mindomoxmlmap.parse(folder,user)
-    topiccsv = mindomoxmltopic.parse(folder,user)
-    hierarchycsv = mindomoxmlhierarchy.parse(folder,user)
-    relshipcsv = mindomoxmlrelation.parse(folder,user)
-    usercsv = mindomoxmluser.parse(folder,user)
+    mapcsv = csvq(mindomoxmlmap.parse(folder,user))
+    topiccsv = csvq(mindomoxmltopic.parse(folder,user))
+    hierarchycsv = csvq(mindomoxmlhierarchy.parse(folder,user))
+    relshipcsv = csvq(mindomoxmlrelation.parse(folder,user))
+    usercsv = csvq(mindomoxmluser.parse(folder,user))
     #xptchlgcsv = mindomoxmlexpectchallenge.parse(folder,user)
     #hourscsv = mindomoxmlhoursused.parse(folder,user)
     #importcsv = mindomoxmlimportance.parse(folder,user)
@@ -83,11 +99,11 @@ def process(folders,extension,debug):
         #fhours = open('mindomohoursused.csv', 'w', encoding='utf-8')
         #fimport = open('mindomoimportance.csv', 'w', encoding='utf-8')
 
-    fmap.write(mindomoxmlmap.getheader())
-    ftopic.write(mindomoxmltopic.getheader())
-    fhierarchy.write(mindomoxmlhierarchy.getheader())
-    frelship.write(mindomoxmlrelation.getheader())
-    fuser.write(mindomoxmluser.getheader())
+    fmap.write(csvq(mindomoxmlmap.getheader()))
+    ftopic.write(csvq(mindomoxmltopic.getheader()))
+    fhierarchy.write(csvq(mindomoxmlhierarchy.getheader()))
+    frelship.write(csvq(mindomoxmlrelation.getheader()))
+    fuser.write(csvq(mindomoxmluser.getheader()))
     #fxptchlg.write(mindomoxmlexpectchallenge.getheader())
     #fhours.write(mindomoxmlhoursused.getheader())
     #fimport.write(mindomoxmlimportance.getheader())

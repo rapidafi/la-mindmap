@@ -11,19 +11,14 @@ import sys, os, getopt
 import mindomoxml as mm
 
 def getheader():
-    ret = "id;fromId;toId;label;mapid;userid"
-    ret = ret + "\n"
-    return (ret)
-
-def t(text):
-    return "\"%s\""%(text or "")
+    return [["id","fromId","toId","label","mapid","userid"]]
 
 # for module usage pass arguments
 def parse(week,user):
     root = mm.getroot(week,user)
 
     (mapid,name,authorId,creationDate,modificationDate) = mm.getdocinfo(root)
-    ret = ""
+    ret = []
     for relation in root.findall('./mo:relations/mo:relation',mm.ns):
         (topicid,fromId,toId,label,userid) = (None,None,None,None,None)
         if "id" in relation.attrib: topicid = relation.attrib["id"]
@@ -32,8 +27,7 @@ def parse(week,user):
         if "label" in relation.attrib: label = relation.attrib["label"]
         userid = None #TODO
 
-        ret = ret + ("%s;%s;%s;%s;%s;%s\n"%(t(topicid),t(fromId),t(toId),t(label),t(mapid),t(userid)))
-
+        ret.append([topicid,fromId,toId,label,mapid,userid])
     return ret
 
 def main(argv):

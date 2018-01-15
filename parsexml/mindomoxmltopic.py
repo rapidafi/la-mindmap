@@ -11,22 +11,14 @@ import sys, os, getopt
 import mindomoxml as mm
 
 def getheader():
-    ret = "id;text;taskCompletition;symbol;topicLevel;mapid;userid"
-    ret = ret + "\n"
-    return ret
-
-def v(value):
-    return "%s"%(value or "")
-
-def t(text):
-    return "%s"%("\"%s\""%(text) if text else "")
+    return [["id","text","taskCompletition","symbol","topicLevel","mapid","userid"]]
 
 # for module usage pass arguments
 def parse(week,user):
     root = mm.getroot(week,user)
 
     (mapid,name,authorId,creationDate,modificationDate) = mm.getdocinfo(root)
-    ret = ""
+    ret = []
     # "root" topics (level=0) first
     for topics in root.findall('.//mo:topics',mm.ns):
         for topic in topics.findall('./mo:topic',mm.ns):
@@ -35,17 +27,13 @@ def parse(week,user):
             symbol = mm.gettopicsymbol(topic)
             topicLevel = 0
             userid = None #TODO
-            ret = ret + ("%s;%s;%s;%s;%s;%s;%s\n"%
-                  (t(topicid),t(topictext),v(taskCompletition),t(symbol),v(topicLevel),t(mapid),t(userid))
-                  )
+            ret.append([topicid,topictext,taskCompletition,symbol,topicLevel,mapid,userid])
             # below "root" topics are subtopics
             elements = mm.subtopic(topic,0,[])
             for e in elements:
                 (topicid,topictext,taskCompletition,symbol,topicLevel,parents) = e
                 userid=None #TODO
-                ret = ret + ("%s;%s;%s;%s;%s;%s;%s\n"%
-                      (t(topicid),t(topictext),v(taskCompletition),t(symbol),v(topicLevel),t(mapid),t(userid))
-                      )
+                ret.append([topicid,topictext,taskCompletition,symbol,topicLevel,mapid,userid])
     return ret
 
 def main(argv):

@@ -11,18 +11,13 @@ import sys, os, getopt
 import mindomoxml as mm
 
 def getheader():
-    ret = "level1id;level1text;level2id;level2text;level3id;level3text;level4id;level4text"
-    ret = ret + "\n"
-    return (ret)
-
-def t(text):
-    return "%s"%(text or "")
+    return [["level1id","level1text","level2id","level2text","level3id","level3text","level4id","level4text"]]
 
 # for module usage pass arguments
 def parse(week,user):
     root = mm.getroot(week,user)
 
-    ret = ""
+    ret = []
     # "root" topics (level=0) first
     for topics in root.findall('.//mo:topics',mm.ns):
         for topic in topics.findall('./mo:topic',mm.ns):
@@ -48,9 +43,7 @@ def parse(week,user):
                     (topic2id,topic2text) = (None,None)
                     (topic3id,topic3text) = (None,None)
 
-                ret = ret + ("\"%s\";\"%s\";\"%s\";\"%s\";\"%s\";\"%s\";\"%s\";\"%s\"\n"%
-                          (t(topic0id),t(topic0text),t(topic1id),t(topic1text),t(topic2id),t(topic2text),t(topic3id),t(topic3text))
-                          )
+                ret.append([topic0id,topic0text,topic1id,topic1text,topic2id,topic2text,topic3id,topic3text])
     return ret
 
 def main(argv):
