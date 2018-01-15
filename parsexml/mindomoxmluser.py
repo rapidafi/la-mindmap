@@ -11,7 +11,7 @@ import sys, os, getopt
 import mindomoxml as mm
 
 def getheader():
-    ret = "userID,firstName,lastName,userName"
+    ret = "userID;firstName;lastName;userName"
     ret = ret + "\n"
     return (ret)
 

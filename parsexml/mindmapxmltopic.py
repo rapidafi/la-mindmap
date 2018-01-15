@@ -14,7 +14,7 @@ def getheader():
     ret = "week;user;documentCreated;documentLastModified;documentVersion"
     ret = ret + ";topicOid;topicLevel;topicPlainText;topicTaskPercentage;topicIconType"
     ret = ret + "\n"
-    return ret.encode('utf-8')
+    return ret
 
 # for module usage pass arguments
 def parse(week,user):
@@ -31,7 +31,7 @@ def parse(week,user):
                       (week,user,documentcreated,documentlastmodified,documentversion,
                        topicoid,topiclevel,topicplaintext,topicpercentage,topicicon)
                       )
-    return ret.encode('utf-8')
+    return ret
 
 def main(argv):
     week = None

@@ -11,7 +11,7 @@ import sys, os, getopt
 import mindomoxml as mm
 
 def getheader():
-    ret = "id,text,taskCompletition,symbol,topicLevel,mapid,userid"
+    ret = "id;text;taskCompletition;symbol;topicLevel;mapid;userid"
     ret = ret + "\n"
     return ret
 

@@ -11,7 +11,7 @@ import sys, os, getopt
 import mindomoxml as mm
 
 def getheader():
-    ret = "id,fromId,toId,label,mapid,userid"
+    ret = "id;fromId;toId;label;mapid;userid"
     ret = ret + "\n"
     return (ret)
 

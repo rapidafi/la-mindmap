@@ -11,7 +11,7 @@ import sys, os, getopt
 import mindomoxml as mm
 
 def getheader():
-    ret = "level1id,level1text,level2id,level2text,level3id,level3text,level4id,level4text"
+    ret = "level1id;level1text;level2id;level2text;level3id;level3text;level4id;level4text"
     ret = ret + "\n"
     return (ret)
 

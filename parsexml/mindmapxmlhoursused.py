@@ -14,7 +14,7 @@ def getheader():
     ret = "week;user;documentCreated;documentLastModified;documentVersion"
     ret = ret + ";topicOid;topicPlainText;customPropertyName;number"
     ret = ret + "\n"
-    return (ret).encode('utf-8')
+    return (ret)
 
 def getcustomproperty(topic):
     # only return value when there's hours used information
@@ -41,7 +41,7 @@ def parse(week,user):
                 (week,user,documentcreated,documentlastmodified,documentversion,
                  topicoid,topicplaintext,prop,number))
 
-    return ret.encode('utf-8')
+    return ret
 
 def main(argv):
     week = None

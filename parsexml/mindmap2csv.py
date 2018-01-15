@@ -36,17 +36,17 @@ def handle(folder,item,debug):
     xptchlgcsv = mindmapxmlexpectchallenge.parse(folder,user)
     hourscsv = mindmapxmlhoursused.parse(folder,user)
     importcsv = mindmapxmlimportance.parse(folder,user)
-    ftopic.write(topiccsv)
-    ftree.write(treecsv)
-    frelship.write(relshipcsv)
-    fxptchlg.write(xptchlgcsv)
-    fhours.write(hourscsv)
-    fimport.write(importcsv)
+    ftopic.write(topiccsv.encode('utf-8'))
+    ftree.write(treecsv.encode('utf-8'))
+    frelship.write(relshipcsv.encode('utf-8'))
+    fxptchlg.write(xptchlgcsv.encode('utf-8'))
+    fhours.write(hourscsv.encode('utf-8'))
+    fimport.write(importcsv.encode('utf-8'))
 
 def process(folders,extension,debug):
     global ftopic, ftree, frelship, fxptchlg, fhours, fimport
 
-    ftopic = open('mindmaptopic.csv', 'w')
+    ftopic = open('mindmaptopic.csv', 'w')#, encoding='utf-8')
     ftree = open('mindmaptree.csv', 'w')
     frelship = open('mindmaprelationship.csv', 'w')
     fxptchlg = open('mindmapexpectchallenge.csv', 'w')
