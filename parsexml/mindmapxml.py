@@ -102,7 +102,7 @@ def getdocinfo(root):
 
 # only module usage
 def main(argv):
-    print "Used as a module only. Exiting."
+    print("Used as a module only. Exiting.")
     sys.exit(2)
 
 if __name__ == "__main__":

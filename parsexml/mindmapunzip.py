@@ -10,7 +10,7 @@ import os, sys, getopt
 import zipfile, re
 
 def getheader():
-    print "week;user;item"
+    print("week;user;item")
 
 def handle(folder,item):
     os.chdir(folder)
@@ -31,11 +31,11 @@ def process(folders,extension):
                 handle(folder,item)
 
 def usage():
-    print """
+    print("""
     Usage:
 
     mindmapunzip -W|--weeks week1,week2,week3... [-e|--extension .ext] [-d|--debug]
-    """
+    """)
 
 def main(argv):
     debug = False
@@ -52,12 +52,12 @@ def main(argv):
         elif opt in ("-e", "--extension"): extension = arg
         elif opt in ("-d", "--debug"): debug = True
     if not weeks:
-        print "You must give subdirectory names for looping. Exiting"
+        print("You must give subdirectory names for looping. Exiting")
         usage()
         sys.exit(2)
 
-    if debug: print "weeks",weeks
-    print getheader()
+    if debug: print("weeks",weeks)
+    print(getheader())
 
     process(weeks,extension)
 

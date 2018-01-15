@@ -47,10 +47,10 @@ def main(argv):
         elif opt in ("-u", "--user"): user = arg
         elif opt in ("-d", "--debug"): debug = True
     if not week or not user:
-        print "Mandatory arguments missing. Exiting."
+        print("Mandatory arguments missing. Exiting.")
         sys.exit(2)
 
-    print getheader()+parse(week,user)
+    print(getheader()+parse(week,user))
 
 if __name__ == "__main__":
     main(sys.argv[1:])

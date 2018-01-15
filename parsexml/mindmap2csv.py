@@ -28,7 +28,7 @@ def handle(folder,item,debug):
     if not os.path.exists(folder+'\\'+user):
         print("USER DIRECTORY MISSING!",folder,user,item)
 
-    if debug: print "user",user
+    if debug: print("user",user)
     
     topiccsv = mindmapxmltopic.parse(folder,user)
     treecsv = mindmapxmltree.parse(folder,user)
@@ -93,11 +93,11 @@ def process(folders,extension,debug):
     ftree.close()
 
 def usage():
-    print """
+    print("""
     Usage:
 
     mindmap2csv -W|--weeks week1,week2,week3... [-e|--extension .ext] [-d|--debug]
-    """
+    """)
 
 def main(argv):
     debug = False
@@ -114,11 +114,11 @@ def main(argv):
         elif opt in ("-e", "--extension"): extension = arg
         elif opt in ("-d", "--debug"): debug = True
     if not weeks:
-        print "You must give subdirectory names for looping. Exiting"
+        print("You must give subdirectory names for looping. Exiting")
         usage()
         sys.exit(2)
 
-    if debug: print "weeks",weeks
+    if debug: print("weeks",weeks)
     process(weeks,extension,debug)
 
 if __name__ == "__main__":
