@@ -13,7 +13,7 @@ import xml.etree.ElementTree as ET
 ns = {'mo': 'http://schemas.mindomo.com/application/version-2.7'}
 
 def getroot(week,user):
-    tree = ET.parse('.\\'+week+'\\'+user+'\\Document.xml')
+    tree = ET.parse('./'+week+'/'+user+'/Document.xml')
     return tree.getroot()
 
 def gettopic(topic):

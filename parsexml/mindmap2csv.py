@@ -41,7 +41,7 @@ def csvq(items):
 
 def handle(folder,item,debug):
     user = re.sub(r'^([^_]+)[_.].*$',r'\1',item)
-    if not os.path.exists(folder+'\\'+user):
+    if not os.path.exists(folder+'/'+user):
         print("USER DIRECTORY MISSING!",folder,user,item)
 
     if debug: print("user",user)

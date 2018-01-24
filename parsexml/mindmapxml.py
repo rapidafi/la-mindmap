@@ -13,7 +13,7 @@ import xml.etree.ElementTree as ET
 ns = {'ap': 'http://schemas.mindjet.com/MindManager/Application/2003'}
 
 def getroot(week,user):
-    tree = ET.parse('.\\'+week+'\\'+user+'\\Document.xml')
+    tree = ET.parse('./'+week+'/'+user+'/Document.xml')
     return tree.getroot()
 
 def gettopic(topic):
