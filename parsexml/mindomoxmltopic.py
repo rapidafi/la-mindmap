@@ -11,7 +11,7 @@ import sys, os, getopt
 import mindomoxml as mm
 
 def getheader():
-    return [["id","text","taskCompletition","symbol","topicLevel","mapid","userid"]]
+    return [["id","text","symbolNumber","symbolSmiley","topicLevel","mapid","userid"]]
 
 # for module usage pass arguments
 def parse(week,user):
@@ -23,17 +23,16 @@ def parse(week,user):
     for topics in root.findall('.//mo:topics',mm.ns):
         for topic in topics.findall('./mo:topic',mm.ns):
             (topicid,topictext) = mm.gettopic(topic)
-            taskCompletition = mm.gettaskcompletion(topic)
-            symbol = mm.gettopicsymbol(topic)
+            (symbolnumber,symbolsmiley) = mm.gettopicsymbol(topic)
             topicLevel = 0
             userid = None #TODO
-            ret.append([topicid,topictext,taskCompletition,symbol,topicLevel,mapid,userid])
+            ret.append([topicid,topictext,symbolnumber,symbolsmiley,topicLevel,mapid,userid])
             # below "root" topics are subtopics
             elements = mm.subtopic(topic,0,[])
             for e in elements:
-                (topicid,topictext,taskCompletition,symbol,topicLevel,parents) = e
+                (topicid,topictext,symbolnumber,symbolsmiley,topicLevel,parents) = e
                 userid=None #TODO
-                ret.append([topicid,topictext,taskCompletition,symbol,topicLevel,mapid,userid])
+                ret.append([topicid,topictext,symbolnumber,symbolsmiley,topicLevel,mapid,userid])
     return ret
 
 def main(argv):

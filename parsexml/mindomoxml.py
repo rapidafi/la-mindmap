@@ -22,15 +22,14 @@ def gettopic(topic):
     return (topicid,topictext)
 
 def gettopicsymbol(topic):
-    topicsymboltext = None
+    topicsymbolnumber = None
+    topicsymbolsmiley = None
     for topicsymbol in topic.findall('./mo:symbols/mo:symbol',ns):
+        if "number_" in topicsymbol.text:
+            topicsymbolnumber = topicsymbol.text.replace("number_","")
         if "smiley_" in topicsymbol.text:
-            topicsymboltext = topicsymbol.text.replace("smiley_","")
-    return (topicsymboltext)
-
-def gettaskcompletion(topic):
-    #TODO
-    return (None)
+            topicsymbolsmiley = topicsymbol.text.replace("smiley_","")
+    return (topicsymbolnumber,topicsymbolsmiley)
 
 def getparents(parents):
     # collect all the parents to same line, reversed!
@@ -45,9 +44,8 @@ def subtopic(parenttopic,topiclevel,parents):
     ret = []
     for topic in parenttopic.findall('./mo:subTopics/mo:topic',ns):
         (topicid,topictext) = gettopic(topic)
-        taskCompletition = gettaskcompletion(topic)
-        symbol = gettopicsymbol(topic)
-        ret.append((topicid,topictext,taskCompletition,symbol,topiclevel,getparents(parents)))
+        (symbolnumber,symbolsmiley) = gettopicsymbol(topic)
+        ret.append((topicid,topictext,symbolnumber,symbolsmiley,topiclevel,getparents(parents)))
         # recursively loop subtopics and defuse list in list
         for e in subtopic(topic,topiclevel,list(parents)):
             ret.append(e)

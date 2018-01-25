@@ -25,7 +25,7 @@ def parse(week,user):
             # below "root" topics are subtopics
             elements = mm.subtopic(topic,0,[])
             for e in elements:
-                (topic3id,topic3text,taskCompletition,symbol,topiclevel,parents) = e
+                (topic3id,topic3text,symbolnumber,symbolsmiley,topiclevel,parents) = e
                 # possibly rethink this next structure:
                 # this is due to changing from topiclevel==3 only to include all levels also
                 if topiclevel>=3:
