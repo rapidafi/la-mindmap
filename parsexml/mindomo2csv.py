@@ -122,27 +122,27 @@ def process(folders,extension,debug):
     #fhours.close()
     #fimport.close()
 
-    # make tree csv unique by topic3oid
-    # TODO this should be somewhere else!
-    """
-    ftree = open('mindomotree.csv', 'r')
+    # make users csv unique by line
+    # (should this be somewhere else?)
+    #"""
+    fuser = open('mindomousers.csv', 'r')
     uniq = set([])
     header = ""
     lnum = 0
-    for line in ftree.readlines():
+    for line in fuser.readlines():
         lnum = lnum + 1
-        incl = re.sub(r'^[^;]*;[^;]*;[^;]*;[^;]*;[^;]*;(.*)$', r'\1', line.rstrip("\n"))
+        incl = line.rstrip("\n")
         if lnum>1: # skip header line
             uniq.add(incl)
         else:
             header = incl
-    ftree.close()
-    ftree = open('mindomotree.csv', 'w')
-    ftree.write(header+"\n")
+    fuser.close()
+    fuser = open('mindomousers.csv', 'w')
+    fuser.write(header+"\n")
     for u in uniq:
-        ftree.write(u+"\n")
-    ftree.close()
-    """
+        fuser.write(u+"\n")
+    fuser.close()
+    #"""
 
 def usage():
     print("""
