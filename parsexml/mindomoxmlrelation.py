@@ -11,13 +11,18 @@ import sys, os, getopt
 import mindomoxml as mm
 
 def getheader():
-    return [["id","fromId","toId","label","mapid","userid"]]
+    return [["id","fromId","toId","label","mapid","userID"]]
 
 # for module usage pass arguments
 def parse(week,user):
     root = mm.getroot(week,user)
 
-    (mapid,name,authorId,creationDate,modificationDate) = mm.getdocinfo(root)
+    (mapid,name,author,creationDate,modificationDate) = mm.getdocinfo(root)
+    (userID,firstName,lastName,userName) = (None,None,None,None)
+    # TODO: if many what to choose?
+    for user in root.findall('./mo:mapUsers/mo:mapUser',mm.ns):
+        if "userID" in user.attrib: userID = user.attrib["userID"]
+
     ret = []
     for relation in root.findall('./mo:relations/mo:relation',mm.ns):
         (topicid,fromId,toId,label,userid) = (None,None,None,None,None)
@@ -25,9 +30,8 @@ def parse(week,user):
         if "fromId" in relation.attrib: fromId = relation.attrib["fromId"]
         if "toId" in relation.attrib: toId = relation.attrib["toId"]
         if "label" in relation.attrib: label = relation.attrib["label"]
-        userid = None #TODO
 
-        ret.append([topicid,fromId,toId,label,mapid,userid])
+        ret.append([topicid,fromId,toId,label,mapid,userID])
     return ret
 
 def main(argv):

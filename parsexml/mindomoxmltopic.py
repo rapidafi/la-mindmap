@@ -11,13 +11,18 @@ import sys, os, getopt
 import mindomoxml as mm
 
 def getheader():
-    return [["id","text","symbolNumber","symbolSmiley","topicLevel","mapid","userid"]]
+    return [["id","text","symbolNumber","symbolSmiley","topicLevel","mapid","userID"]]
 
 # for module usage pass arguments
 def parse(week,user):
     root = mm.getroot(week,user)
 
-    (mapid,name,authorId,creationDate,modificationDate) = mm.getdocinfo(root)
+    (mapid,name,author,creationDate,modificationDate) = mm.getdocinfo(root)
+    (userID,firstName,lastName,userName) = (None,None,None,None)
+    # TODO: if many what to choose?
+    for user in root.findall('./mo:mapUsers/mo:mapUser',mm.ns):
+        if "userID" in user.attrib: userID = user.attrib["userID"]
+
     ret = []
     # "root" topics (level=0) first
     for topics in root.findall('.//mo:topics',mm.ns):
@@ -25,14 +30,12 @@ def parse(week,user):
             (topicid,topictext) = mm.gettopic(topic)
             (symbolnumber,symbolsmiley) = mm.gettopicsymbol(topic)
             topicLevel = 0
-            userid = None #TODO
-            ret.append([topicid,topictext,symbolnumber,symbolsmiley,topicLevel,mapid,userid])
+            ret.append([topicid,topictext,symbolnumber,symbolsmiley,topicLevel,mapid,userID])
             # below "root" topics are subtopics
             elements = mm.subtopic(topic,0,[])
             for e in elements:
                 (topicid,topictext,symbolnumber,symbolsmiley,topicLevel,parents) = e
-                userid=None #TODO
-                ret.append([topicid,topictext,symbolnumber,symbolsmiley,topicLevel,mapid,userid])
+                ret.append([topicid,topictext,symbolnumber,symbolsmiley,topicLevel,mapid,userID])
     return ret
 
 def main(argv):

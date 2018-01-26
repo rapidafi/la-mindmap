@@ -54,11 +54,11 @@ def subtopic(parenttopic,topiclevel,parents):
 def getdocinfo(root):
     id = root.attrib["id"]
     name = root.find('./mo:name',ns).text
-    authorId = root.find('./mo:author',ns).text
+    author = root.find('./mo:author',ns).text
     creationDate = root.find('./mo:creationDate',ns).text
     modificationDate = root.find('./mo:modificationDate',ns).text
 
-    return (id,name,authorId,creationDate,modificationDate)
+    return (id,name,author,creationDate,modificationDate)
 
 # only module usage
 def main(argv):
