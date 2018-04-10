@@ -103,7 +103,7 @@ while ($courseunit = pg_fetch_assoc($result1)) {
             while ($response = pg_fetch_assoc($result3)) {
                 $courseunit = json_decode($response["response"]); //replace!
             }
-            array_push($return_arr,$courseunit);
+            $return_arr = $courseunit; // replace! not an array!
         }
     }
     // no studentNumber given as argument or such data does not exist
@@ -119,7 +119,11 @@ while ($courseunit = pg_fetch_assoc($result1)) {
             $concept["disposition"] = array('feeling'=>0, 'significance'=>0, 'mastery'=>0, 'comment'=>'');
             array_push($courseunit["keyConcepts"],$concept);
         }
-        array_push($return_arr,$courseunit);
+        if ($studentNumber) { // go for template
+            $return_arr = $courseunit; // replace! not an array!
+        } else {
+            array_push($return_arr,$courseunit);
+        }
     }// !studentNumber
     //var_dump($courseunit);
 }
