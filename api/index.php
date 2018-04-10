@@ -103,8 +103,8 @@ while ($courseunit = pg_fetch_assoc($result1)) {
             while ($response = pg_fetch_assoc($result3)) {
                 $courseunit = json_decode($response["response"]); //replace!
             }
+            array_push($return_arr,$courseunit);
         }
-        $return_arr = $courseunit; //replace!
     }
     // no studentNumber given as argument or such data does not exist
     // so return empty template:
