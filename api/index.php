@@ -119,7 +119,8 @@ while ($courseunit = pg_fetch_assoc($result1)) {
             $concept["disposition"] = array('feeling'=>0, 'significance'=>0, 'mastery'=>0, 'comment'=>'');
             array_push($courseunit["keyConcepts"],$concept);
         }
-        if ($studentNumber) { // go for template
+        // when courseUnitCode is specified do NOT use array, otherwise use array to list courses
+        if ($courseUnitCode) {
             $return_arr = $courseunit; // replace! not an array!
         } else {
             array_push($return_arr,$courseunit);
