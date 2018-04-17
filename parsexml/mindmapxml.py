@@ -34,7 +34,8 @@ def gettopicpercentage(topic):
 def gettopicicon(topic):
     topicicontype = None
     for topicicon in topic.findall('./ap:IconsGroup/ap:Icons/ap:Icon',ns):
-        topicicontype = topicicon.attrib["IconType"]
+        if "IconType" in topicicon.attrib:
+            topicicontype = topicicon.attrib["IconType"]
     return (topicicontype)
     
 def getpriority(topic):
