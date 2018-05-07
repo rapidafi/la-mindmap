@@ -18,10 +18,8 @@ if ($_GET) {
 }
 
 $postdata = null;
-if ($courseUnitCode && $studentNumber && $_POST) {
-    if ($_POST['data']) {
-        $postdata = $_POST['data'];
-    }
+if ($courseUnitCode && $studentNumber) {
+    $postdata = file_get_contents('php://input');
 }
 
 ///////////////////////////////////////////////////////////
@@ -36,7 +34,7 @@ $conn = pg_pconnect("
     password=".$settings['database']['pass']."
 ");
 if (!$conn) {
-    echo "An error occurred.\n";
+    echo "An error occurred.1\n";
     exit;
 }
 
@@ -47,7 +45,7 @@ $sql0 = '
 if ($postdata) {
     $result0 = pg_query_params($conn,$sql0,array($courseUnitCode,$studentNumber,$postdata));
     if (!$result0) {
-        echo "An error occurred.\n";
+        echo "An error occurred.2\n";
         exit;
     }
 }
@@ -87,7 +85,7 @@ if ($courseUnitCode) {
     $result1 = pg_query($conn,$sql1_2);
 }
 if (!$result1) {
-    echo "An error occurred.\n";
+    echo "An error occurred.3\n";
     exit;
 }
 while ($courseunit = pg_fetch_assoc($result1)) {
@@ -95,7 +93,7 @@ while ($courseunit = pg_fetch_assoc($result1)) {
     if ($studentNumber) {
         $result3 = pg_query_params($conn,$sql3,array($courseUnitCode,$studentNumber));
         if (!$result3) {
-            echo "An error occurred.\n";
+            echo "An error occurred.4\n";
             exit;
         }
         if (pg_num_rows($result3)>0) {
@@ -111,7 +109,7 @@ while ($courseunit = pg_fetch_assoc($result1)) {
     if (!$studentNumber || !$studentDataExists) {
         $result2 = pg_query_params($conn,$sql2,array($courseunit["courseUnitCode"]));
         if (!$result2) {
-            echo "An error occurred.\n";
+            echo "An error occurred.5\n";
             exit;
         }
         $courseunit["keyConcepts"] = array();
