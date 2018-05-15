@@ -43,6 +43,12 @@ $sql0 = '
     VALUES ($1,$2,current_timestamp,$3)
 ';
 if ($postdata) {
+    // hack data->meta->data->meta... loop away
+    $tmpdata=json_decode($postdata);
+    while(property_exists($tmpdata, "data")) {
+        $tmpdata=$tmpdata->{"data"};
+    }
+    $postdata=json_encode($tmpdata);
     $result0 = pg_query_params($conn,$sql0,array($courseUnitCode,$studentNumber,$postdata));
     if (!$result0) {
         echo "An error occurred.2\n";
