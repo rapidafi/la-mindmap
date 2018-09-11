@@ -12,7 +12,7 @@ import mindmapxml as mm
 
 def getheader():
     ret = [["week","user","documentCreated","documentLastModified","documentVersion",
-        "topicOid","topicLevel","topicPlainText","topicTaskPercentage","topicIconType"]]
+        "topicOid","topicLevel","topicPlainText","topicEmotion","topicCompetence","topicDifficulty","topicCalloutText"]]
     return ret
 
 # for module usage pass arguments
@@ -25,9 +25,9 @@ def parse(week,user):
         for topic in onetopic.findall('./ap:Topic',mm.ns):
             elements = mm.subtopic(topic,0,[])
             for e in elements:
-                (topicoid,topicplaintext,topiclevel,topicpercentage,topicicon,parents) = e
+                (topicoid,topicplaintext,topiclevel,topicemotion,topiccompetence,topicdifficulty,topiccallouttext,parents) = e
                 ret.append([week,user,documentcreated,documentlastmodified,documentversion,
-                       topicoid,topiclevel,topicplaintext,topicpercentage,topicicon])
+                       topicoid,topiclevel,topicplaintext,topicemotion,topiccompetence,topicdifficulty,topiccallouttext])
     return ret
 
 def main(argv):

@@ -13,7 +13,6 @@ import re
 #import ucsv as csv
 
 import mindmapxmltopic, mindmapxmltree, mindmapxmlrelationship
-import mindmapxmlexpectchallenge, mindmapxmlhoursused, mindmapxmlimportance
 
 # globally used filehandles
 ftopic = None
@@ -49,23 +48,14 @@ def handle(folder,item,debug):
     topiccsv = csvq(mindmapxmltopic.parse(folder,user))
     treecsv = csvq(mindmapxmltree.parse(folder,user))
     relshipcsv = csvq(mindmapxmlrelationship.parse(folder,user))
-    xptchlgcsv = csvq(mindmapxmlexpectchallenge.parse(folder,user))
-    hourscsv = csvq(mindmapxmlhoursused.parse(folder,user))
-    importcsv = csvq(mindmapxmlimportance.parse(folder,user))
     if sys.version_info.major >= 3:
         ftopic.write(topiccsv)
         ftree.write(treecsv)
         frelship.write(relshipcsv)
-        fxptchlg.write(xptchlgcsv)
-        fhours.write(hourscsv)
-        fimport.write(importcsv)
     else:
         ftopic.write(topiccsv.encode('utf-8'))
         ftree.write(treecsv.encode('utf-8'))
         frelship.write(relshipcsv.encode('utf-8'))
-        fxptchlg.write(xptchlgcsv.encode('utf-8'))
-        fhours.write(hourscsv.encode('utf-8'))
-        fimport.write(importcsv.encode('utf-8'))
 
 def process(folders,extension,debug):
     global ftopic, ftree, frelship, fxptchlg, fhours, fimport
@@ -74,23 +64,14 @@ def process(folders,extension,debug):
         ftopic = open('mindmaptopic.csv', 'w', encoding='utf-8')
         ftree = open('mindmaptree.csv', 'w', encoding='utf-8')
         frelship = open('mindmaprelationship.csv', 'w', encoding='utf-8')
-        fxptchlg = open('mindmapexpectchallenge.csv', 'w', encoding='utf-8')
-        fhours = open('mindmaphoursused.csv', 'w', encoding='utf-8')
-        fimport = open('mindmapimportance.csv', 'w', encoding='utf-8')
     else:
         ftopic = open('mindmaptopic.csv', 'w')#, encoding='utf-8')
         ftree = open('mindmaptree.csv', 'w')
         frelship = open('mindmaprelationship.csv', 'w')
-        fxptchlg = open('mindmapexpectchallenge.csv', 'w')
-        fhours = open('mindmaphoursused.csv', 'w')
-        fimport = open('mindmapimportance.csv', 'w')
 
     ftopic.write(csvq(mindmapxmltopic.getheader()))
     ftree.write(csvq(mindmapxmltree.getheader()))
     frelship.write(csvq(mindmapxmlrelationship.getheader()))
-    fxptchlg.write(csvq(mindmapxmlexpectchallenge.getheader()))
-    fhours.write(csvq(mindmapxmlhoursused.getheader()))
-    fimport.write(csvq(mindmapxmlimportance.getheader()))
 
     for folder in folders:
         for item in os.listdir(folder):
@@ -100,9 +81,6 @@ def process(folders,extension,debug):
     ftopic.close()
     ftree.close()
     frelship.close()
-    fxptchlg.close()
-    fhours.close()
-    fimport.close()
 
     # make tree csv unique by topic3oid
     # TODO this should be somewhere else!

@@ -30,7 +30,7 @@ def parse(week,user):
                     elements = elements + mm.subtopic(fttopic,0,[])
 
             for e in elements:
-                (topic3oid,topic3plaintext,topiclevel,topicpercent,topicicon,parents) = e
+                (topic3oid,topic3plaintext,topiclevel,topicemotion,topiccompetence,topicdifficulty,topiccallouttext,parents) = e
                 # possibly rethink this next structure:
                 # this is due to changing from topiclevel==3 only to include all levels also
                 if topiclevel>=3:

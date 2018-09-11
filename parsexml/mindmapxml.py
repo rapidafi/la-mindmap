@@ -24,38 +24,57 @@ def gettopic(topic):
             topicplaintext = topictext.attrib["PlainText"]
     return (topicoid,topicplaintext)
 
-def gettopicpercentage(topic):
-    topictaskpercentage = None
-    for topictask in topic.findall('./ap:Task',ns):
-        if "TaskPercentage" in topictask.attrib:
-            topictaskpercentage = topictask.attrib["TaskPercentage"]
-    return (topictaskpercentage)
+"""
+Choose icon by type parameter
 
-def gettopicicon(topic):
+Hard coded keys to icons (below in code) for types: Emotion, Competence and Difficulty
+"""
+def gettopicicon(topic,type):
     topicicontype = None
-    for topicicon in topic.findall('./ap:IconsGroup/ap:Icons/ap:Icon',ns):
-        if "IconType" in topicicon.attrib:
-            topicicontype = topicicon.attrib["IconType"]
-    return (topicicontype)
-    
-def getpriority(topic):
-    taskpriority = None
-    taskpercentage = None
-    for task in topic.findall('./ap:Task',ns):
-        if "TaskPriority" in task.attrib:
-            taskpriority = task.attrib["TaskPriority"]
-        if "TaskPercentage" in task.attrib:
-            taskpercentage = task.attrib["TaskPercentage"]
-    return (taskpriority,taskpercentage)
+    # NB! This probably could be generated from data as well!
+    typeoptions = None
+    if type == "Emotion":
+        typeoptions = {
+            "6Up4AwAAAAAAAAAAAAAAAA==" : "Excited",
+            "LrKgqwAAAAAAAAAAAAAAAA==" : "Relaxed",
+            "W0bzbgAAAAAAAAAAAAAAAA==" : "Neutral",
+            "uD9XcgAAAAAAAAAAAAAAAA==" : "Bored",
+            "sWwXLwAAAAAAAAAAAAAAAA==" : "Anxious",
+            "H8m8PQAAAAAAAAAAAAAAAA==" : "EMOTION NOT SELECTED"
+        }
+    if type == "Competence":
+        typeoptions = {
+            "6Xuk0QAAAAAAAAAAAAAAAA==" : "1 Low",
+            "h3McqAAAAAAAAAAAAAAAAA==" : "2 Medium low",
+            "/0FSQQAAAAAAAAAAAAAAAA==" : "3 Medium",
+            "hFp+eQAAAAAAAAAAAAAAAA==" : "4 Medium high",
+            "bMuCqAAAAAAAAAAAAAAAAA==" : "5 High",
+            "JQCptwAAAAAAAAAAAAAAAA==" : "COMPETENCE NOT SELECTED"
+        }
+    if type == "Difficulty":
+        typeoptions = {
+            "hKU7wQAAAAAAAAAAAAAAAA==" : "1 Easy",
+            "BbriQgAAAAAAAAAAAAAAAA==" : "2 Easier than average",
+            "q6llvAAAAAAAAAAAAAAAAA==" : "3 Average",
+            "0O4tDwAAAAAAAAAAAAAAAA==" : "4 Harder than average",
+            "i8x9wgAAAAAAAAAAAAAAAA==" : "5 Hard",
+            "exNH7QAAAAAAAAAAAAAAAA==" : "DIFFICULTY NOT SELECTED"
+        }
 
-def getprioritymarker(root,priority):
-    taskprioritymarkername = None
-    for taskprioritymarker in root.findall('.//ap:TaskPriorityMarker',ns):
-        for taskpriority in taskprioritymarker.findall('./ap:TaskPriority',ns):
-            if "TaskPriority" in taskpriority.attrib:
-                if priority == taskpriority.attrib["TaskPriority"]:
-                    taskprioritymarkername = taskprioritymarker.find('./ap:Name',ns).attrib["Name"]
-    return (taskprioritymarkername)
+    for topicicon in topic.findall('./ap:IconsGroup/ap:Icons/ap:Icon',ns):
+        if "IconSignature" in topicicon.attrib:
+            if topicicon.attrib["IconSignature"] in typeoptions:
+                topicicontype = typeoptions.get(topicicon.attrib["IconSignature"],"ICON ERROR!")
+    return (topicicontype)
+
+def gettopiccallouttext(topic):
+    topiccallouttext = None
+    for topictext in topic.findall('./ap:FloatingTopics/ap:Topic/ap:Text',ns):
+        # if there is already some text (meaning multiple callout texts) catenate w/ newline
+        if topiccallouttext: topiccallouttext = topiccallouttext + "\n"
+        if "PlainText" in topictext.attrib:
+            topiccallouttext = topictext.attrib["PlainText"]
+    return (topiccallouttext)
 
 def getparents(parents):
     # collect all the parents to same line, reversed!
@@ -71,7 +90,7 @@ def subtopic(parenttopic,topiclevel,parents):
     for topic in parenttopic.findall('./ap:SubTopics/ap:Topic',ns):
         if 1==1: #topiclevel == 3:
             (topicoid,topicplaintext) = gettopic(topic)
-            ret.append((topicoid,topicplaintext,topiclevel,gettopicpercentage(topic),gettopicicon(topic),getparents(parents)))
+            ret.append((topicoid,topicplaintext,topiclevel,gettopicicon(topic,"Emotion"),gettopicicon(topic,"Competence"),gettopicicon(topic,"Difficulty"),gettopiccallouttext(topic),getparents(parents)))
         # recursively loop subtopics and defuse list in list
         for e in subtopic(topic,topiclevel,list(parents)):
             ret.append(e)
