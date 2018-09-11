@@ -84,6 +84,7 @@ def process(folders,extension,debug):
 
     # make tree csv unique by topic3oid
     # TODO this should be somewhere else!
+    """
     ftree = open('mindmaptree.csv', 'r')
     uniq = set([])
     header = ""
@@ -101,6 +102,7 @@ def process(folders,extension,debug):
     for u in uniq:
         ftree.write(u+"\n")
     ftree.close()
+    """
 
 def usage():
     print("""
