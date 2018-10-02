@@ -30,10 +30,13 @@ def parse(week,user):
             for objref in relationship.findall('./ap:ConnectionGroup[@Index="1"]/ap:Connection/ap:ObjectReference',mm.ns):
                 reltopicoid = objref.attrib["OIdRef"]
 
+            topicplaintext = "" # empty string in purpose
+            # get plaintext if it exists...
             for topic in relationship.findall('./ap:FloatingTopics/ap:Topic',mm.ns):
                 (realtopicoid,topicplaintext) = mm.gettopic(topic)
                 # realtopicoid is the topics actual own oid (not interested...)
-                ret.append([week,user,documentcreated,documentlastmodified,documentversion,topicoid,reltopicoid,topicplaintext])
+            # ... but make an entry with or without plaintext
+            ret.append([week,user,documentcreated,documentlastmodified,documentversion,topicoid,reltopicoid,topicplaintext])
     return ret
 
 def main(argv):
