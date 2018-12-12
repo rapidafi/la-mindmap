@@ -1,0 +1,6 @@
+*.pyc
+*.csv
+*.xml
+*.mmap
+Viikko*
+Week*

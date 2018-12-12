@@ -1,0 +1,12 @@
+; Secure INI file as well as valid PHP
+;<?php
+;die(); // For further security
+;/*
+[database]
+host = TODO: server name ("localhost")
+port = TODO: TCP port number (5432)
+name = TODO: database name ("dbname")
+user = TODO: username ("dbuser")
+pass = TODO: password ("dbpass")
+;*/
+;?>
