@@ -2,6 +2,8 @@
 ;<?php
 ;die(); // For further security
 ;/*
+[auth]
+users[TODO: apiuser] = "TODO: password"
 [database]
 host = TODO: server name ("localhost")
 port = TODO: TCP port number (5432)

@@ -2,6 +2,25 @@
 header('Content-Type: application/json; charset=utf-8');
 header("Access-Control-Allow-Origin: *");
 
+$settings = parse_ini_file('/opt/dfs.ini', true);
+
+if (!isset($_SERVER['PHP_AUTH_USER'])) {
+    header('WWW-Authenticate: Basic realm="DFS Backend Access"');
+    header('HTTP/1.0 401 Unauthorized');
+    echo '{"error": "Unauthorired", "code": 401}';
+    exit;
+} else {
+    $user = $_SERVER['PHP_AUTH_USER'];
+    $pass = $_SERVER['PHP_AUTH_PW'];
+    if (array_key_exists($user, $settings['auth']['users']) && $pass == $settings['auth']['users'][$user]) {
+        echo ""; //ok
+    } else {
+        header('WWW-Authenticate: Basic realm="DFS Backend Access"');
+        header('HTTP/1.0 401 Unauthorized');
+        echo '{"error": "Unauthorired", "code": 401}';
+        exit;
+    }
+}
 
 $courseUnitCode = null;
 $studentNumber = null;
@@ -23,8 +42,6 @@ if ($courseUnitCode && $studentNumber) {
 }
 
 ///////////////////////////////////////////////////////////
-
-$settings = parse_ini_file('/opt/dfs.ini', true);
 
 $conn = pg_pconnect("
     host=".$settings['database']['host']."
