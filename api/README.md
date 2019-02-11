@@ -38,7 +38,8 @@ CREATE TABLE courseunit (
 CREATE TABLE keyconcept (
     "courseUnitCode" text NULL,
     "keyConceptOrder" int4 NULL,
-    "keyConceptName" text NULL
+    "keyConceptName" text NULL,
+    "disposition" json NULL
 );
 
 CREATE TABLE studentresponse (
@@ -58,6 +59,7 @@ CREATE TABLE studentresponse (
 5. Copy `index.php` to a location served by the HTTP server
 
     * Put database server, port, database name, username and password in a file called `dfs.ini` (e.g. copy the template `dfs.ini.template` from repository and edit as reguired) to a location on HTTP server that can be read by the HTTP server process
+    * `dfs.ini` has also place for Basic Auth usernames ja passwords
     * Put full path of `dfs.ini` in place in `index.php` where it is mentioned
 
 ## TODO

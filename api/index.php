@@ -84,7 +84,7 @@ $sql1_2 = '
     FROM "courseunit"
 ';
 $sql2 = '
-    SELECT "keyConceptOrder", "keyConceptName"
+    SELECT "keyConceptOrder", "keyConceptName", "disposition"
     FROM "keyconcept"
     WHERE "courseUnitCode"=$1
 ';
@@ -137,7 +137,11 @@ while ($courseunit = pg_fetch_assoc($result1)) {
         }
         $courseunit["keyConcepts"] = array();
         while ($concept = pg_fetch_assoc($result2)) {
-            $concept["disposition"] = array('feeling'=>0, 'significance'=>0, 'mastery'=>0, 'comment'=>'');
+            if (array_key_exists("disposition", $concept) && $concept["disposition"]!=null) {
+                $concept["disposition"] = json_decode($concept["disposition"]);
+            } else {
+                $concept["disposition"] = array('feeling'=>0, 'significance'=>0, 'mastery'=>0, 'comment'=>'');
+            }
             array_push($courseunit["keyConcepts"],$concept);
         }
         // when courseUnitCode is specified do NOT use array, otherwise use array to list courses
